@@ -14,8 +14,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.kontenin.ui.theme.KonteninTheme
 
 class MainActivity : ComponentActivity() {
+    
+    private lateinit var appContainer: AppContainer
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        appContainer = AppContainer()
+        
         enableEdgeToEdge()
         setContent {
             KonteninTheme {
