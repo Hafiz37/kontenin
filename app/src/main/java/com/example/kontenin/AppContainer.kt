@@ -29,6 +29,9 @@ class AppContainer(
     
     fun setScenario(scenario: DemoScenario) {
         jobGateway.setScenario(scenario)
+        if (externalActionGateway is DemoExternalActionGateway) {
+            externalActionGateway.scenario = scenario
+        }
     }
     
     // ViewModel Factories (FE-07+)
@@ -51,6 +54,15 @@ class AppContainer(
             savedStateHandle = savedStateHandle,
             jobId = jobId,
             mode = mode
+        )
+    }
+
+    // FE-13: JobDetailViewModel factory
+    fun createJobDetailViewModel(jobId: Long): com.example.kontenin.presentation.jobdetail.JobDetailViewModel {
+        return com.example.kontenin.presentation.jobdetail.JobDetailViewModel(
+            jobGateway = jobGateway,
+            externalActionGateway = externalActionGateway,
+            jobId = jobId
         )
     }
 }
