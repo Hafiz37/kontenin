@@ -43,7 +43,7 @@ class AppContainer(
         )
     }
     
-    // FE-08: JobFormViewModel factory dengan SavedStateHandle
+    // FE-08, FE-16: JobFormViewModel factory dengan SavedStateHandle & ReminderGateway
     fun createJobFormViewModel(
         savedStateHandle: SavedStateHandle,
         jobId: Long,
@@ -53,7 +53,8 @@ class AppContainer(
             jobGateway = jobGateway,
             savedStateHandle = savedStateHandle,
             jobId = jobId,
-            mode = mode
+            mode = mode,
+            reminderGateway = reminderGateway
         )
     }
 
@@ -71,6 +72,14 @@ class AppContainer(
         return com.example.kontenin.presentation.recap.RecapViewModel(
             jobGateway = jobGateway,
             clock = clock
+        )
+    }
+
+    // FE-16: SettingsViewModel factory
+    fun createSettingsViewModel(): com.example.kontenin.presentation.settings.SettingsViewModel {
+        return com.example.kontenin.presentation.settings.SettingsViewModel(
+            reminderGateway = reminderGateway,
+            externalActionGateway = externalActionGateway
         )
     }
 }

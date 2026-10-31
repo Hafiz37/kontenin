@@ -261,4 +261,30 @@
     <string name="recap_source_job_count">%d job</string>
     <string name="recap_source_remaining">sisa %s</string>
     <string name="recap_receivables_summary">Total sisa %1$s · %2$d job</string>
+
+    <!-- Settings, Reminders & Battery Help (FE-16) -->
+    <string name="action_open_settings">Buka Pengaturan</string>
+    <string name="action_deny">Tolak</string>
+    <string name="permission_status_active">Aktif</string>
+    <string name="permission_status_inactive">Belum aktif</string>
+    <string name="permission_banner_title">Izin notifikasi belum aktif</string>
+    <string name="permission_banner_desc">Pengingat tidak akan tampil jika izin notifikasi belum diberikan.</string>
+    <string name="permission_exact_alarm_title">Izin alarm tepat waktu belum aktif</string>
+    <string name="permission_exact_alarm_desc">Pengingat mungkin kurang presisi jika alarm tepat waktu belum diizinkan.</string>
+    <string name="settings_item_exact_alarm">Alarm tepat waktu</string>
+    <string name="settings_item_battery_help">Petunjuk baterai dan autostart</string>
+    <string name="settings_btn_test_reminder">Uji Pengingat</string>
+    <string name="dialog_rationale_title">Izinkan notifikasi</string>
+    <string name="dialog_rationale_message">Kontenin memakai notifikasi untuk mengingatkan jadwal job Anda sebelum acara.</string>
+    <string name="battery_help_title">Petunjuk Baterai &amp; Autostart</string>
+    <string name="battery_help_message">Sistem Android atau optimasi baterai dapat menghentikan aplikasi di latar belakang sehingga pengingat tidak berbunyi tepat waktu.\n\nUntuk memastikan pengingat tetap andal:\n1. Buka Pengaturan Aplikasi melalui tombol di bawah.\n2. Matikan Optimasi Baterai (pilih \"Tidak Dibatasi\" / \"Unrestricted\").\n3. Izinkan Mulai Otomatis (Autostart) di latar belakang jika opsi tersedia di perangkat Anda.\n\nCatatan: Tampilan menu dapat sedikit berbeda bergantung pada merk dan versi Android perangkat.</string>
+    <string name="test_reminder_scheduled">Notifikasi uji dijadwalkan (simulasi demo, tanpa alarm OS).</string>
+    <string name="test_reminder_denied">Izin notifikasi belum diberikan. Pengingat tidak dapat dijadwalkan.</string>
+    <string name="test_reminder_failed">Gagal menjadwalkan notifikasi uji: %s</string>
+    <string name="test_reminder_disclaimer">Catatan: Reliabilitas alarm asli belum diuji pada perangkat ini.</string>
+    <string name="snackbar_reminders_skipped">Beberapa pengingat dilewati karena acara terlalu dekat</string>
+    <string name="demo_controls_title">Kontrol Demo &amp; Simulasi Notifikasi</string>
+    <string name="demo_simulate_notification">Simulasikan Ketuk Notifikasi</string>
+    <string name="demo_job_id_label">ID Job</string>
+    <string name="app_version_default">0.1</string>
 </resources>

@@ -1,45 +1,78 @@
 package com.example.kontenin.ui.screens.settings
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.example.kontenin.R
+import com.example.kontenin.contract.PermissionStatus
+import com.example.kontenin.presentation.settings.SettingsUiState
+import com.example.kontenin.presentation.settings.SettingsViewModel
+import com.example.kontenin.ui.components.KonteninTonalButton
+import com.example.kontenin.ui.components.PermissionBanner
+import com.example.kontenin.ui.debug.DemoControls
 import com.example.kontenin.ui.theme.KonteninTheme
 
 /**
- * Layar Pengaturan (FE-05 — kerangka placeholder).
+ * Layar Pengaturan (FE-16).
  *
- * Seksi yang akan diisi pada FE-16:
- * - Izin (notifikasi)
- * - Pengingat (jadwal, lead time)
- * - Data (ekspor, impor, hapus semua)
- * - Tentang (versi, lisensi)
+ * Mengimplementasikan:
+ * - Status izin notifikasi & alarm tepat waktu (teks + ikon, banner di Pengaturan saja)
+ * - Tombol Buka Pengaturan melalui ExternalActionGateway
+ * - Petunjuk baterai/autostart via BatteryHelpDialog
+ * - Uji Pengingat (simulasi demo tanpa alarm OS)
+ * - Tampilan versi aplikasi
+ * - DemoControls untuk simulasi deep link notifikasi
+ *
+ * Acuan: PRD FR-4, FR-6; OQ-6; DESIGN D-4, §6.5.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
     snackbarHostState: SnackbarHostState,
+    onSimulateNotificationTap: (jobId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors  = KonteninTheme.colorScheme
+    val uiState by viewModel.uiState.collectAsState()
+    val colors = KonteninTheme.colorScheme
     val spacing = KonteninTheme.spacing
+
+    // Tampilkan snackbar jika ada user message dari ViewModel
+    LaunchedEffect(uiState.userMessage) {
+        uiState.userMessage?.let { msg ->
+            snackbarHostState.showSnackbar(
+                message = msg,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearUserMessage()
+        }
+    }
+
+    // Tampilkan dialog petunjuk baterai jika diminta
+    if (uiState.showBatteryHelpDialog) {
+        BatteryHelpDialog(
+            onDismissRequest = { viewModel.onShowBatteryHelpDialog(false) },
+            onOpenSettings = {
+                viewModel.onShowBatteryHelpDialog(false)
+                viewModel.onOpenSettingsClick()
+            }
+        )
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -47,12 +80,12 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text  = stringResource(R.string.screen_settings),
+                        text = stringResource(R.string.screen_settings),
                         style = KonteninTheme.typography.titleLarge,
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor    = colors.surface,
+                    containerColor = colors.surface,
                     titleContentColor = colors.onSurface,
                 ),
             )
@@ -64,41 +97,121 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
         ) {
-            // ── Placeholder seksi-seksi ───────────────────────────────────────
+            // ── Banner Peringatan Izin (HANYA di Pengaturan sesuai D-4) ──────
+            if (uiState.hasPermissionIssue) {
+                PermissionBanner(
+                    title = stringResource(uiState.bannerTitleRes),
+                    description = stringResource(uiState.bannerDescRes),
+                    actionLabel = stringResource(R.string.action_open_settings),
+                    onActionClick = { viewModel.onOpenSettingsClick() },
+                    modifier = Modifier.padding(spacing.space4)
+                )
+            }
+
+            // ── Seksi Izin ──────────────────────────────────────────────────
             SettingsSectionHeader(title = stringResource(R.string.settings_section_permission))
-            SettingsPlaceholderItem(label = stringResource(R.string.settings_item_notification))
+
+            PermissionStatusItem(
+                label = stringResource(R.string.settings_item_notification),
+                isGranted = uiState.isNotificationGranted,
+                onOpenSettings = { viewModel.onOpenSettingsClick() }
+            )
+
+            PermissionStatusItem(
+                label = stringResource(R.string.settings_item_exact_alarm),
+                isGranted = uiState.isExactAlarmGranted,
+                onOpenSettings = { viewModel.onOpenSettingsClick() }
+            )
 
             HorizontalDivider()
 
+            // ── Seksi Pengingat ─────────────────────────────────────────────
             SettingsSectionHeader(title = stringResource(R.string.settings_section_reminder))
-            SettingsPlaceholderItem(label = stringResource(R.string.settings_item_reminder_schedule))
-            SettingsPlaceholderItem(label = stringResource(R.string.settings_item_reminder_lead))
 
-            HorizontalDivider()
+            // Petunjuk baterai dan autostart
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(R.string.settings_item_battery_help),
+                        style = KonteninTheme.typography.bodyLarge,
+                        color = colors.onSurface
+                    )
+                },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = colors.onSurfaceVariant
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.onShowBatteryHelpDialog(true) }
+            )
 
+            // Tombol Uji Pengingat (Tonal, target sentuh ≥ 48 dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = spacing.space4, vertical = spacing.space2),
+                verticalArrangement = Arrangement.spacedBy(spacing.space2)
+            ) {
+                KonteninTonalButton(
+                    text = stringResource(R.string.settings_btn_test_reminder),
+                    onClick = { viewModel.onTestReminderClick() },
+                    modifier = Modifier.fillMaxWidth(),
+                    minHeight = KonteninTheme.dimensions.minTouchTarget
+                )
+
+                Text(
+                    text = stringResource(R.string.test_reminder_disclaimer),
+                    style = KonteninTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(top = spacing.space2))
+
+            // ── Seksi Data ──────────────────────────────────────────────────
             SettingsSectionHeader(title = stringResource(R.string.settings_section_data))
             SettingsPlaceholderItem(label = stringResource(R.string.settings_item_export))
             SettingsPlaceholderItem(label = stringResource(R.string.settings_item_import))
-            SettingsPlaceholderItem(label = stringResource(R.string.settings_item_delete_all))
 
             HorizontalDivider()
 
+            // ── Seksi Tentang ───────────────────────────────────────────────
             SettingsSectionHeader(title = stringResource(R.string.settings_section_about))
-            SettingsPlaceholderItem(label = stringResource(R.string.settings_item_version))
-            SettingsPlaceholderItem(label = stringResource(R.string.settings_item_licenses))
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(R.string.settings_item_version),
+                        style = KonteninTheme.typography.bodyLarge,
+                        color = colors.onSurface
+                    )
+                },
+                trailingContent = {
+                    Text(
+                        text = uiState.appVersion,
+                        style = KonteninTheme.typography.bodyMedium,
+                        color = colors.onSurfaceVariant
+                    )
+                }
+            )
+
+            HorizontalDivider()
+
+            // ── Panel Kontrol Demo & Pengujian Simulasi Notifikasi ───────────
+            Spacer(modifier = Modifier.height(spacing.space3))
+            DemoControls(
+                onSimulateNotificationTap = onSimulateNotificationTap,
+                notificationPermissionStatus = uiState.notificationPermissionStatus,
+                exactAlarmPermissionStatus = uiState.exactAlarmPermissionStatus,
+                onToggleNotificationPermission = { viewModel.onToggleNotificationPermission() },
+                onToggleExactAlarmPermission = { viewModel.onToggleExactAlarmPermission() },
+                modifier = Modifier.padding(horizontal = spacing.space4)
+            )
 
             Spacer(modifier = Modifier.height(spacing.space5))
-
-            // ── Keterangan placeholder global ─────────────────────────────────
-            Text(
-                text     = stringResource(R.string.placeholder_settings),
-                style    = KonteninTheme.typography.bodySmall,
-                color    = colors.onSurfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = spacing.space4),
-            )
-            Spacer(modifier = Modifier.height(spacing.space4))
         }
     }
 }
@@ -109,16 +222,82 @@ private fun SettingsSectionHeader(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text     = title,
-        style    = KonteninTheme.typography.labelMedium,
-        color    = KonteninTheme.colorScheme.primary,
+        text = title,
+        style = KonteninTheme.typography.labelMedium,
+        color = KonteninTheme.colorScheme.primary,
         fontWeight = FontWeight.SemiBold,
         modifier = modifier.padding(
-            start  = KonteninTheme.spacing.space4,
-            end    = KonteninTheme.spacing.space4,
-            top    = KonteninTheme.spacing.space4,
+            start = KonteninTheme.spacing.space4,
+            end = KonteninTheme.spacing.space4,
+            top = KonteninTheme.spacing.space4,
             bottom = KonteninTheme.spacing.space2,
         ),
+    )
+}
+
+@Composable
+private fun PermissionStatusItem(
+    label: String,
+    isGranted: Boolean,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = KonteninTheme.colorScheme
+    val extendedColors = KonteninTheme.extendedColors
+
+    ListItem(
+        headlineContent = {
+            Text(
+                text = label,
+                style = KonteninTheme.typography.bodyLarge,
+                color = colors.onSurface
+            )
+        },
+        trailingContent = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (isGranted) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.permission_status_active),
+                        style = KonteninTheme.typography.bodyMedium,
+                        color = colors.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = extendedColors.warningAccent,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.permission_status_inactive),
+                        style = KonteninTheme.typography.bodyMedium,
+                        color = extendedColors.warningAccent,
+                        fontWeight = FontWeight.Medium
+                    )
+                    TextButton(
+                        onClick = onOpenSettings,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_open_settings),
+                            style = KonteninTheme.typography.labelMedium,
+                            color = colors.primary
+                        )
+                    }
+                }
+            }
+        },
+        modifier = modifier
     )
 }
 
@@ -130,7 +309,7 @@ private fun SettingsPlaceholderItem(
     ListItem(
         headlineContent = {
             Text(
-                text  = label,
+                text = label,
                 style = KonteninTheme.typography.bodyMedium,
                 color = KonteninTheme.colorScheme.onSurfaceVariant,
             )

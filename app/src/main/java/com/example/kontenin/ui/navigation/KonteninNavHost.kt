@@ -12,6 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.kontenin.AppContainer
 import com.example.kontenin.MainActivity
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import com.example.kontenin.ui.screens.home.HomeScreen
 import com.example.kontenin.ui.screens.jobdetail.JobDetailScreen
 import com.example.kontenin.ui.screens.jobform.JobFormScreen
@@ -86,7 +89,39 @@ fun KonteninNavHost(
         }
 
         composable(route = Routes.Settings.route) {
-            SettingsScreen(snackbarHostState = snackbarHostState)
+            val viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.example.kontenin.presentation.settings.SettingsViewModel>(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        return appContainer.createSettingsViewModel() as T
+                    }
+                }
+            )
+            val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+            SettingsScreen(
+                viewModel = viewModel,
+                snackbarHostState = snackbarHostState,
+                onSimulateNotificationTap = { targetJobId ->
+                    coroutineScope.launch {
+                        val job = appContainer.jobGateway.observeJob(targetJobId).firstOrNull()
+                        if (job != null) {
+                            navController.navigate(Routes.JobDetail.createRoute(targetJobId))
+                        } else {
+                            navController.navigate(Routes.Home.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                            snackbarHostState.showSnackbar(
+                                message = context.getString(com.example.kontenin.R.string.err_job_not_found),
+                                duration = androidx.compose.material3.SnackbarDuration.Short
+                            )
+                        }
+                    }
+                }
+            )
         }
 
         // ── Destinasi turunan ─────────────────────────────────────────────────
@@ -148,10 +183,21 @@ fun KonteninNavHost(
                     }
                 }
             )
+            val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
             
             JobFormScreen(
                 viewModel = viewModel,
                 onNavigateBack = { navController.popBackStack() },
+                onSaved = { hasSkippedReminders ->
+                    if (hasSkippedReminders) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = context.getString(com.example.kontenin.R.string.snackbar_reminders_skipped),
+                                duration = androidx.compose.material3.SnackbarDuration.Short
+                            )
+                        }
+                    }
+                }
             )
         }
     }

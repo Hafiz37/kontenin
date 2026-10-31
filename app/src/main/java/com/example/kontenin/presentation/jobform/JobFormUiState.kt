@@ -33,13 +33,16 @@ data class JobFormUiState(
     val showAcaraSuggestions: Boolean = false,
     val showSumberJobSuggestions: Boolean = false,
 
-    // ── Dialog Bentrok (FE-12) ─────────────────────────────────────────────
+    // ── Dialog Bentrok (FE-12) & Penjelasan Notifikasi (FE-16) ─────────────
     val showConflictDialog: Boolean = false,
     val conflictingJobs: List<com.example.kontenin.model.Job> = emptyList(),
+    val showNotificationRationaleDialog: Boolean = false,
 
-    // ── Hasil Simpan (FE-11, FE-12) ─────────────────────────────────────────
+    // ── Hasil Simpan & Pengingat (FE-11, FE-12, FE-16) ──────────────────────
     val isSaved: Boolean = false,
     val saveErrorMessage: String? = null,
+    val hasSkippedReminders: Boolean = false,
+    val skippedRemindersCount: Int = 0,
 
     // ── Status Validasi (FE-09) ─────────────────────────────────────────────
     val errors: Map<JobFormField, FormValidationError> = emptyMap(),

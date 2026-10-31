@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.kontenin.contract.ConflictCheckResult
 import com.example.kontenin.contract.JobGateway
 import com.example.kontenin.contract.JobResult
+import com.example.kontenin.contract.ReminderGateway
+import com.example.kontenin.demo.DemoReminderGateway
 import com.example.kontenin.model.JobDraft
 import com.example.kontenin.ui.navigation.Routes
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,8 +33,11 @@ class JobFormViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val jobId: Long,
     mode: String,
+    private val reminderGateway: ReminderGateway = DemoReminderGateway(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
+
+    private var pendingDraft: JobDraft? = null
 
     private val _uiState = MutableStateFlow(
         JobFormUiState(
@@ -571,7 +576,7 @@ class JobFormViewModel(
                     }
                 }
                 is ConflictCheckResult.NoConflict -> {
-                    saveJobInternal(draft)
+                    proceedSaveWithPermissionCheck(draft)
                 }
             }
         }
@@ -596,7 +601,55 @@ class JobFormViewModel(
             )
         }
         val draft = _uiState.value.toDraft()
+        proceedSaveWithPermissionCheck(draft)
+    }
+
+    private fun proceedSaveWithPermissionCheck(draft: JobDraft) {
         viewModelScope.launch(dispatcher) {
+            val permissionStatus = reminderGateway.getNotificationPermissionStatus()
+            if (_uiState.value.mode != FormMode.Edit &&
+                permissionStatus == com.example.kontenin.contract.PermissionStatus.NotRequested
+            ) {
+                pendingDraft = draft
+                updateState {
+                    copy(
+                        isLoading = false,
+                        showNotificationRationaleDialog = true
+                    )
+                }
+            } else {
+                saveJobInternal(draft)
+            }
+        }
+    }
+
+    fun onRationaleContinue() {
+        val draft = pendingDraft ?: _uiState.value.toDraft()
+        pendingDraft = null
+        updateState { copy(showNotificationRationaleDialog = false) }
+        viewModelScope.launch(dispatcher) {
+            reminderGateway.requestNotificationPermission()
+            saveJobInternal(draft)
+        }
+    }
+
+    fun onRationaleLater() {
+        val draft = pendingDraft ?: _uiState.value.toDraft()
+        pendingDraft = null
+        updateState { copy(showNotificationRationaleDialog = false) }
+        viewModelScope.launch(dispatcher) {
+            saveJobInternal(draft)
+        }
+    }
+
+    fun onRationaleDeny() {
+        val draft = pendingDraft ?: _uiState.value.toDraft()
+        pendingDraft = null
+        updateState { copy(showNotificationRationaleDialog = false) }
+        viewModelScope.launch(dispatcher) {
+            if (reminderGateway is com.example.kontenin.demo.DemoReminderGateway) {
+                reminderGateway.setNotificationPermission(com.example.kontenin.contract.PermissionStatus.Denied)
+            }
             saveJobInternal(draft)
         }
     }
@@ -610,10 +663,15 @@ class JobFormViewModel(
 
         when (result) {
             is JobResult.Success -> {
+                val tanggal = draft.tanggal ?: 0L
+                val jamMulai = draft.jamMulaiMenit ?: 0
+                val reminderResult = reminderGateway.scheduleJobReminders(tanggal, jamMulai)
                 updateState {
                     copy(
                         isLoading = false,
-                        isSaved = true
+                        isSaved = true,
+                        hasSkippedReminders = reminderResult.skippedCount > 0,
+                        skippedRemindersCount = reminderResult.skippedCount
                     )
                 }
             }

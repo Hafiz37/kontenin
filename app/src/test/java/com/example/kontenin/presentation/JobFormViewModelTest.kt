@@ -30,11 +30,15 @@ class JobFormViewModelTest {
     fun setUp() {
         val clock = FixedClock(Instant.parse("2026-10-31T08:00:00Z"))
         gateway = DemoJobGateway(clock)
+        val reminderGateway = com.example.kontenin.demo.DemoReminderGateway(clock).apply {
+            notificationPermissionStatus = com.example.kontenin.contract.PermissionStatus.Granted
+        }
         viewModel = JobFormViewModel(
             jobGateway = gateway,
             savedStateHandle = SavedStateHandle(),
             jobId = 0L,
             mode = Routes.MODE_ADD,
+            reminderGateway = reminderGateway,
             dispatcher = kotlinx.coroutines.Dispatchers.Unconfined
         )
     }

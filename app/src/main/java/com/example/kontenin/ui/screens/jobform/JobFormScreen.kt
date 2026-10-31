@@ -63,6 +63,7 @@ fun JobFormScreen(
     viewModel: JobFormViewModel,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onSaved: ((hasSkippedReminders: Boolean) -> Unit)? = null,
 ) {
     val colors  = KonteninTheme.colorScheme
     val spacing = KonteninTheme.spacing
@@ -83,9 +84,10 @@ fun JobFormScreen(
         viewModel.onScrollToFieldConsumed()
     }
 
-    // Navigasi kembali setelah berhasil simpan (FE-11, FE-12)
+    // Navigasi kembali setelah berhasil simpan (FE-11, FE-12, FE-16)
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
+            onSaved?.invoke(uiState.hasSkippedReminders)
             onNavigateBack()
         }
     }
@@ -272,6 +274,15 @@ fun JobFormScreen(
             conflicts = uiState.conflictingJobs,
             onDismiss = viewModel::onConflictDismiss,
             onConfirm = viewModel::onConflictForceSave
+        )
+    }
+
+    // ── Dialog Penjelasan Izin Notifikasi (FE-16) ────────────────────────────
+    if (uiState.showNotificationRationaleDialog) {
+        com.example.kontenin.ui.screens.settings.NotificationRationaleDialog(
+            onContinue = viewModel::onRationaleContinue,
+            onLater = viewModel::onRationaleLater,
+            onDeny = viewModel::onRationaleDeny
         )
     }
 }
