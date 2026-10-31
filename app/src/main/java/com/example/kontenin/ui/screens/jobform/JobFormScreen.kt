@@ -16,18 +16,21 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import com.example.kontenin.R
 import com.example.kontenin.presentation.jobform.FormMode
+import com.example.kontenin.presentation.jobform.JobFormField
 import com.example.kontenin.presentation.jobform.JobFormViewModel
 import com.example.kontenin.ui.components.DatePickerModal
 import com.example.kontenin.ui.components.KonteninPrimaryButton
@@ -37,29 +40,22 @@ import com.example.kontenin.ui.theme.KonteninTheme
 import java.time.LocalDate
 
 /**
- * Layar Form Job dengan semua field input (FE-08).
+ * Layar Form Job dengan semua field input dan validasi (FE-08, FE-09).
  *
  * Mendukung tiga mode melalui argument navigasi:
  * - [Routes.MODE_ADD]       → judul "Tambah Job", jobId diabaikan
  * - [Routes.MODE_EDIT]      → judul "Ubah Job", jobId = target
  * - [Routes.MODE_DUPLICATE] → judul dinamis "Tambah Job (Disalin dari X & Y)"
  *
- * Fitur FE-08:
- * - Semua 12 field input sesuai PRD §7
- * - Draft state dengan SavedStateHandle untuk survive configuration change
- * - Character counter < 20% untuk alamat dan catatan
- * - Money field dengan separator ribuan
- * - Duration field terima koma/titik
- * - Sticky Simpan button
- * - Scroll dengan keyboard inset
+ * Fitur FE-09:
+ * - Validasi ber-tipe untuk semua field PRD FR-1.2
+ * - Error inline di bawah masing-masing kolom dengan string dari strings.xml
+ * - Validasi saat blur (kehilangan fokus) untuk kolom yang sudah diisi
+ * - Pembaruan error seketika saat input diperbaiki
+ * - Validasi seluruh form saat Simpan & gulir/fokus otomatis ke error pertama
+ * - Tombol Lunas mengisi dibayar = fee, aktif hanya bila fee valid dan > 0
  *
- * Belum di FE-08:
- * - Validasi error message → FE-09
- * - Autocomplete acara/sumber → FE-10
- * - Save ke gateway → FE-11
- * - Conflict detection → FE-12
- *
- * Acuan: PRD §7, FR-1.1–1.2; DESIGN §6.2.
+ * Acuan: PRD §7, FR-1.1–1.2, FR-3.2, OQ-8; DESIGN §6.2, §7.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +69,19 @@ fun JobFormScreen(
     val dim     = KonteninTheme.dimensions
 
     val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
+
+    // Map focus requesters untuk tiap field form
+    val focusRequesters = remember {
+        JobFormField.entries.associateWith { FocusRequester() }
+    }
+
+    // Gulir dan fokus ke error pertama saat validasi Simpan gagal (FE-09)
+    LaunchedEffect(uiState.scrollToField) {
+        val targetField = uiState.scrollToField ?: return@LaunchedEffect
+        focusRequesters[targetField]?.requestFocus()
+        viewModel.onScrollToFieldConsumed()
+    }
 
     // Judul dinamis berdasarkan mode
     val screenTitle = when (uiState.mode) {
@@ -124,7 +133,7 @@ fun JobFormScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(scrollState)
                     .imePadding()                        // Keyboard inset
                     .padding(horizontal = spacing.space4),
             ) {
@@ -134,7 +143,9 @@ fun JobFormScreen(
                 PasanganSection(
                     uiState = uiState,
                     onNamaPengantin1Change = viewModel::onNamaPengantin1Change,
-                    onNamaPengantin2Change = viewModel::onNamaPengantin2Change
+                    onNamaPengantin2Change = viewModel::onNamaPengantin2Change,
+                    onFieldBlur = viewModel::onFieldBlur,
+                    focusRequesters = focusRequesters
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space5))
@@ -144,7 +155,9 @@ fun JobFormScreen(
                     uiState = uiState,
                     onShowDatePicker = viewModel::showDatePicker,
                     onShowTimePicker = viewModel::showTimePicker,
-                    onDurasiChange = viewModel::onDurasiChange
+                    onDurasiChange = viewModel::onDurasiChange,
+                    onFieldBlur = viewModel::onFieldBlur,
+                    focusRequesters = focusRequesters
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space5))
@@ -153,7 +166,9 @@ fun JobFormScreen(
                 AcaraDanSumberSection(
                     uiState = uiState,
                     onAcaraChange = viewModel::onAcaraChange,
-                    onSumberJobChange = viewModel::onSumberJobChange
+                    onSumberJobChange = viewModel::onSumberJobChange,
+                    onFieldBlur = viewModel::onFieldBlur,
+                    focusRequesters = focusRequesters
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space5))
@@ -162,7 +177,9 @@ fun JobFormScreen(
                 LokasiSection(
                     uiState = uiState,
                     onAlamatChange = viewModel::onAlamatChange,
-                    onSharelocChange = viewModel::onSharelocChange
+                    onSharelocChange = viewModel::onSharelocChange,
+                    onFieldBlur = viewModel::onFieldBlur,
+                    focusRequesters = focusRequesters
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space5))
@@ -172,7 +189,9 @@ fun JobFormScreen(
                     uiState = uiState,
                     onFeeChange = viewModel::onFeeChange,
                     onDibayarChange = viewModel::onDibayarChange,
-                    onLunasClick = viewModel::onLunasClick
+                    onLunasClick = viewModel::onLunasClick,
+                    onFieldBlur = viewModel::onFieldBlur,
+                    focusRequesters = focusRequesters
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space5))
@@ -180,7 +199,9 @@ fun JobFormScreen(
                 // 6. Seksi Catatan
                 CatatanSection(
                     uiState = uiState,
-                    onCatatanChange = viewModel::onCatatanChange
+                    onCatatanChange = viewModel::onCatatanChange,
+                    onFieldBlur = viewModel::onFieldBlur,
+                    focusRequesters = focusRequesters
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space6))
@@ -220,7 +241,7 @@ fun JobFormScreen(
         val currentMinutes = uiState.jamMulaiMenit ?: 480 // Default 08:00
         val hour = currentMinutes / 60
         val minute = currentMinutes % 60
-        
+
         TimePickerModal(
             onTimeSelected = { totalMinutes ->
                 viewModel.onJamMulaiSelected(totalMinutes)

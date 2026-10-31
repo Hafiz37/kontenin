@@ -213,4 +213,20 @@
     <string name="cd_select_date">Pilih tanggal</string>
     <string name="cd_select_time">Pilih jam</string>
     <string name="action_select">Pilih</string>
+
+    <!-- Form Validation Errors (FE-09) -->
+    <string name="validation_err_name_1_required">Nama pengantin 1 wajib diisi</string>
+    <string name="validation_err_name_2_required">Nama pengantin 2 wajib diisi</string>
+    <string name="validation_err_max_50">Maksimal 50 karakter</string>
+    <string name="validation_err_date_required">Pilih tanggal acara</string>
+    <string name="validation_err_time_required">Pilih jam mulai</string>
+    <string name="validation_err_duration_range">Isi durasi 0,5 sampai 24 jam, kelipatan 0,5</string>
+    <string name="validation_err_event_required">Acara wajib diisi</string>
+    <string name="validation_err_source_required">Sumber job wajib diisi</string>
+    <string name="validation_err_address_max_300">Maksimal 300 karakter</string>
+    <string name="validation_err_shareloc_prefix">Link harus diawali http:// atau https://</string>
+    <string name="validation_err_fee_required">Fee wajib diisi</string>
+    <string name="validation_err_paid_exceeds_fee">Tidak boleh lebih dari fee</string>
+    <string name="validation_err_notes_max_1000">Maksimal 1000 karakter</string>
+    <string name="validation_err_overflow">Nominal terlalu besar</string>
 </resources>

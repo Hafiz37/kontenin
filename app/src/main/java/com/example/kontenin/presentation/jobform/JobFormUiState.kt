@@ -3,12 +3,12 @@ package com.example.kontenin.presentation.jobform
 import com.example.kontenin.model.JobDraft
 
 /**
- * UI State untuk Job Form Screen (FE-08).
+ * UI State untuk Job Form Screen (FE-08, FE-09).
  *
- * Menyimpan draft mentah input pengguna, termasuk nilai kosong dan input sementara
- * (mis. koma pada durasi, angka yang sedang diketik).
+ * Menyimpan draft mentah input pengguna, status validasi error,
+ * status tombol Lunas, dan kontrol fokus/scroll ke error pertama.
  *
- * Acuan: PRD §7, FR-1.1–1.2; DESIGN §6.2.
+ * Acuan: PRD §7, FR-1.1–1.2, FR-3.2, OQ-8; DESIGN §6.2, §7.
  */
 data class JobFormUiState(
     // ── Draft input mentah ──────────────────────────────────────────────────
@@ -24,6 +24,12 @@ data class JobFormUiState(
     val feeText: String = "",              // Input mentah untuk parsing
     val dibayarText: String = "0",         // Default "0"
     val catatan: String = "",
+
+    // ── Status Validasi (FE-09) ─────────────────────────────────────────────
+    val errors: Map<JobFormField, FormValidationError> = emptyMap(),
+    val touchedFields: Set<JobFormField> = emptySet(),
+    val isLunasEnabled: Boolean = false,
+    val scrollToField: JobFormField? = null, // Trigger untuk scroll & fokus saat error simpan
 
     // ── UI control state ────────────────────────────────────────────────────
     val isLoading: Boolean = false,
@@ -49,6 +55,16 @@ data class JobFormUiState(
      * Cek apakah counter catatan harus ditampilkan (< 20% = < 200 karakter tersisa).
      */
     fun shouldShowCatatanCounter(): Boolean = catatanRemaining < 200
+
+    /**
+     * Ambil error untuk field tertentu jika ada.
+     */
+    fun getError(field: JobFormField): FormValidationError? = errors[field]
+
+    /**
+     * Cek apakah field tertentu memiliki error.
+     */
+    fun hasError(field: JobFormField): Boolean = errors.containsKey(field)
 }
 
 /**
@@ -62,19 +78,12 @@ enum class FormMode {
 
 /**
  * Konversi dari JobFormUiState ke JobDraft untuk validasi/simpan (FE-09, FE-11).
- * Parsing durasi dan fee di sini.
+ * Menggunakan helper murni dari JobFormValidator.
  */
 fun JobFormUiState.toDraft(): JobDraft {
-    // Parse durasi: terima koma atau titik
-    val durasiJam = durasiText
-        .replace(',', '.')
-        .toDoubleOrNull()
-        ?.takeIf { it >= 0.5 && it <= 24.0 }
-    val durasiMenit = durasiJam?.let { (it * 60).toInt() }
-
-    // Parse fee dan dibayar
-    val fee = feeText.filter { it.isDigit() }.toLongOrNull()
-    val dibayar = dibayarText.filter { it.isDigit() }.toLongOrNull() ?: 0L
+    val durasiMenit = JobFormValidator.parseDurationMinutes(durasiText)
+    val fee = JobFormValidator.parseFee(feeText)
+    val dibayar = JobFormValidator.parseDibayar(dibayarText) ?: 0L
 
     return JobDraft(
         namaPengantin1 = namaPengantin1.trim(),
