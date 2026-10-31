@@ -97,4 +97,59 @@
     <string name="gallery_section_banners">Banner Izin</string>
     <string name="gallery_section_dialogs">Dialog Konfirmasi</string>
     <string name="gallery_section_empty_loading">Empty State &amp; Loading</string>
+
+    <!-- Navigation labels (FE-05) -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_recap">Rekap</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- Screen titles (FE-05) -->
+    <string name="screen_home">Kontenin</string>
+    <string name="screen_recap">Rekap</string>
+    <string name="screen_settings">Pengaturan</string>
+    <string name="screen_job_detail">Detail Job</string>
+    <string name="screen_add_job">Tambah Job</string>
+    <string name="screen_edit_job">Ubah Job</string>
+
+    <!-- Home tabs (FE-05) -->
+    <string name="tab_upcoming">Mendatang</string>
+    <string name="tab_history">Riwayat</string>
+    <string name="filter_unpaid">Belum lunas</string>
+
+    <!-- Recap period buttons (FE-05) -->
+    <string name="recap_period_today">Hari Ini</string>
+    <string name="recap_period_week">Minggu Ini</string>
+    <string name="recap_period_month">Bulan Ini</string>
+
+    <!-- Settings sections & items (FE-05) -->
+    <string name="settings_section_permission">Izin</string>
+    <string name="settings_item_notification">Izin Notifikasi</string>
+    <string name="settings_section_reminder">Pengingat</string>
+    <string name="settings_item_reminder_schedule">Jadwal Pengingat</string>
+    <string name="settings_item_reminder_lead">Waktu Pengingat Sebelum Acara</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_item_export">Ekspor Data</string>
+    <string name="settings_item_import">Impor Data</string>
+    <string name="settings_item_delete_all">Hapus Semua Data</string>
+    <string name="settings_section_about">Tentang</string>
+    <string name="settings_item_version">Versi Aplikasi</string>
+    <string name="settings_item_licenses">Lisensi</string>
+
+    <!-- Placeholder descriptions (FE-05) -->
+    <string name="placeholder_home_upcoming">Beranda — Tab Mendatang dan Riwayat akan diisi pada FE-07</string>
+    <string name="placeholder_recap">Rekap — Konten akan diisi pada FE-15</string>
+    <string name="placeholder_settings">Pengaturan — Konten akan diisi pada FE-16</string>
+    <string name="placeholder_job_form">Form Job — Konten akan diisi pada FE-08</string>
+    <string name="placeholder_job_detail">Detail Job — Konten akan diisi pada FE-13</string>
+
+    <!-- Bottom action bar labels (FE-05) -->
+    <string name="action_bar_edit">Ubah</string>
+    <string name="action_bar_duplicate">Duplikat</string>
+    <string name="action_bar_delete">Hapus</string>
+
+    <!-- Accessibility content descriptions (FE-05) -->
+    <string name="cd_nav_home">Beranda</string>
+    <string name="cd_nav_recap">Rekap</string>
+    <string name="cd_nav_settings">Pengaturan</string>
+    <string name="cd_fab_add_job">Tambah job</string>
 </resources>
