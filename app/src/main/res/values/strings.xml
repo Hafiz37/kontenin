@@ -152,4 +152,13 @@
     <string name="cd_nav_recap">Rekap</string>
     <string name="cd_nav_settings">Pengaturan</string>
     <string name="cd_fab_add_job">Tambah job</string>
+
+    <!-- Payment Status (FE-06) -->
+    <string name="payment_unpaid">Belum lunas</string>
+    <string name="payment_partial">Kurang %s</string>
+
+    <!-- Job Card & Display Formatting (FE-06) -->
+    <string name="job_card_separator">·</string>
+    <string name="time_range_next_day">%1$s - %2$s (%3$s)</string>
+    <string name="time_range_same_day">%1$s - %2$s</string>
 </resources>

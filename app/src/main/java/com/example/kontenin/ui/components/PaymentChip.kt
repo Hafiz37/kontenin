@@ -84,6 +84,9 @@ fun PaymentChip(
  * - Jika lunas (dibayar >= fee): tidak ditampilkan sama sekali (DESIGN §5.2: "hilang jika lunas").
  * - Jika dibayar == 0: teks "Belum lunas"
  * - Jika dibayar sebagian: teks "Kurang Rp X"
+ * 
+ * NOTE: Sekarang menggunakan JobDisplayMapper.paymentChipText dari FE-06.
+ * Function ini tetap ada untuk backward compatibility.
  */
 @Composable
 fun PaymentChip(
@@ -97,7 +100,7 @@ fun PaymentChip(
     }
 
     val chipText = if (dibayar <= 0L) {
-        stringResource(R.string.theme_chip_warning_short) // "Belum lunas"
+        stringResource(R.string.payment_unpaid) // "Belum lunas"
     } else {
         val remaining = fee - dibayar
         "Kurang Rp ${formatThousandsString(remaining.toString())}"

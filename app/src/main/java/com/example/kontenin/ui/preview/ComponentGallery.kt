@@ -31,8 +31,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.kontenin.R
+import com.example.kontenin.model.Job
 import com.example.kontenin.ui.components.ConfirmationDialog
 import com.example.kontenin.ui.components.EmptyState
+import com.example.kontenin.ui.components.JobCard
+import com.example.kontenin.ui.components.JobCardCompact
 import com.example.kontenin.ui.components.KonteninDestructiveButton
 import com.example.kontenin.ui.components.KonteninLoadingIndicator
 import com.example.kontenin.ui.components.KonteninOutlinedButton
@@ -46,6 +49,7 @@ import com.example.kontenin.ui.components.PermissionBanner
 import com.example.kontenin.ui.components.SectionHeading
 import com.example.kontenin.ui.components.SkeletonJobList
 import com.example.kontenin.ui.theme.KonteninTheme
+import java.time.LocalDate
 
 /**
  * Layar Galeri Preview Komponen Bersama - FE-04.
@@ -318,7 +322,124 @@ fun ComponentGalleryScreen(
 
                 HorizontalDivider(color = colors.outlineVariant)
 
-                // 3. BAGIAN CHIP & HEADING
+                // 3. BAGIAN JOB CARDS (FE-06)
+                Column(verticalArrangement = Arrangement.spacedBy(spacing.space3)) {
+                    SectionHeading(title = "Kartu Job (FE-06)")
+
+                    Text(
+                        text = "JobCard Standar untuk Beranda (tanggal/jam dominan, max 2 baris nama):",
+                        style = customTypography.caption,
+                        color = colors.onSurfaceVariant
+                    )
+
+                    // Sample job: 18 Oktober 2026, 10:00, durasi 4 jam
+                    val sampleJob1 = Job(
+                        id = 1L,
+                        namaPengantin1 = "Andi",
+                        namaPengantin2 = "Sari",
+                        tanggal = LocalDate.of(2026, 10, 18).toEpochDay(),
+                        jamMulaiMenit = 600, // 10:00
+                        durasiMenit = 240, // 4 jam
+                        acara = "Resepsi",
+                        alamat = "Gedung X",
+                        shareloc = "https://maps.app.goo.gl/...",
+                        sumberJob = "Vendor A",
+                        fee = 3_500_000L,
+                        dibayar = 2_000_000L,
+                        catatan = "",
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis()
+                    )
+
+                    JobCard(
+                        job = sampleJob1,
+                        onClick = {}
+                    )
+
+                    // Job lintas tengah malam (OQ-7)
+                    Text(
+                        text = "Lintas Tengah Malam (OQ-7: 22.00 - 02.00 (19 Okt)):",
+                        style = customTypography.caption,
+                        color = colors.onSurfaceVariant
+                    )
+
+                    val sampleJob2 = Job(
+                        id = 2L,
+                        namaPengantin1 = "Budi",
+                        namaPengantin2 = "Rina",
+                        tanggal = LocalDate.of(2026, 10, 18).toEpochDay(),
+                        jamMulaiMenit = 1320, // 22:00
+                        durasiMenit = 240, // 4 jam → selesai 02:00 (19 Okt)
+                        acara = "Akad & Resepsi",
+                        alamat = "Masjid Agung",
+                        shareloc = "",
+                        sumberJob = "Pribadi",
+                        fee = 2_000_000L,
+                        dibayar = 2_000_000L, // Lunas
+                        catatan = "",
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis()
+                    )
+
+                    JobCard(
+                        job = sampleJob2,
+                        onClick = {}
+                    )
+
+                    // Nama sangat panjang
+                    Text(
+                        text = "Nama Sangat Panjang (Max 2 Baris + Elipsis):",
+                        style = customTypography.caption,
+                        color = colors.onSurfaceVariant
+                    )
+
+                    val sampleJob3 = Job(
+                        id = 3L,
+                        namaPengantin1 = "Muhammad Rizki Pratama Putra Mahardika",
+                        namaPengantin2 = "Siti Nur Khadijah Azzahra Ramadhani",
+                        tanggal = LocalDate.of(2026, 11, 1).toEpochDay(),
+                        jamMulaiMenit = 480, // 08:00
+                        durasiMenit = 300, // 5 jam
+                        acara = "Tedak Sinten & Syukuran",
+                        alamat = "",
+                        shareloc = "",
+                        sumberJob = "Vendor Mutiara Wedding",
+                        fee = 5_000_000L,
+                        dibayar = 0L, // Belum lunas
+                        catatan = "",
+                        createdAt = System.currentTimeMillis(),
+                        updatedAt = System.currentTimeMillis()
+                    )
+
+                    JobCard(
+                        job = sampleJob3,
+                        onClick = {}
+                    )
+
+                    // JobCardCompact untuk Rekap
+                    Spacer(modifier = Modifier.height(spacing.space2))
+                    Text(
+                        text = "JobCardCompact untuk Rekap (Layout Padat):",
+                        style = customTypography.caption,
+                        color = colors.onSurfaceVariant
+                    )
+
+                    JobCardCompact(
+                        job = sampleJob1,
+                        onClick = {},
+                        showSource = true
+                    )
+
+                    JobCardCompact(
+                        job = sampleJob3,
+                        onClick = {},
+                        showSource = false
+                    )
+                }
+
+                HorizontalDivider(color = colors.outlineVariant)
+
+                // 4. BAGIAN CHIP & HEADING
                 Column(verticalArrangement = Arrangement.spacedBy(spacing.space3)) {
                     SectionHeading(
                         title = stringResource(R.string.gallery_section_chips),
@@ -347,7 +468,7 @@ fun ComponentGalleryScreen(
 
                 HorizontalDivider(color = colors.outlineVariant)
 
-                // 4. BAGIAN BANNER IZIN
+                // 5. BAGIAN BANNER IZIN
                 Column(verticalArrangement = Arrangement.spacedBy(spacing.space3)) {
                     SectionHeading(title = stringResource(R.string.gallery_section_banners))
 
@@ -361,7 +482,7 @@ fun ComponentGalleryScreen(
 
                 HorizontalDivider(color = colors.outlineVariant)
 
-                // 5. BAGIAN DIALOG KONFIRMASI
+                // 6. BAGIAN DIALOG KONFIRMASI
                 Column(verticalArrangement = Arrangement.spacedBy(spacing.space3)) {
                     SectionHeading(title = stringResource(R.string.gallery_section_dialogs))
 
@@ -415,7 +536,7 @@ fun ComponentGalleryScreen(
 
                 HorizontalDivider(color = colors.outlineVariant)
 
-                // 6. BAGIAN EMPTY STATE & LOADING
+                // 7. BAGIAN EMPTY STATE & LOADING
                 Column(verticalArrangement = Arrangement.spacedBy(spacing.space4)) {
                     SectionHeading(title = stringResource(R.string.gallery_section_empty_loading))
 
