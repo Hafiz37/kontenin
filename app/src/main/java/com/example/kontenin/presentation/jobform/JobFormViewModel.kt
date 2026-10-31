@@ -3,13 +3,17 @@ package com.example.kontenin.presentation.jobform
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kontenin.contract.ConflictCheckResult
 import com.example.kontenin.contract.JobGateway
+import com.example.kontenin.contract.JobResult
+import com.example.kontenin.model.JobDraft
 import com.example.kontenin.ui.navigation.Routes
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -539,7 +543,86 @@ class JobFormViewModel(
             )
         }
 
-        // TODO FE-11: simpan ke gateway
+        val draft = _uiState.value.toDraft()
+        val tanggal = draft.tanggal ?: return
+        val jamMulai = draft.jamMulaiMenit ?: return
+        val durasi = draft.durasiMenit ?: return
+        val excludeId = if (_uiState.value.mode == FormMode.Edit) jobId else null
+
+        // Periksa jadwal bertabrakan sebelum mutasi (FE-12)
+        viewModelScope.launch(dispatcher) {
+            updateState { copy(isLoading = true) }
+            val conflictResult = jobGateway.checkConflict(
+                tanggal = tanggal,
+                jamMulaiMenit = jamMulai,
+                durasiMenit = durasi,
+                excludeId = excludeId
+            )
+
+            when (conflictResult) {
+                is ConflictCheckResult.HasConflict -> {
+                    updateState {
+                        copy(
+                            isLoading = false,
+                            showConflictDialog = true,
+                            conflictingJobs = conflictResult.conflictingJobs
+                        )
+                    }
+                }
+                is ConflictCheckResult.NoConflict -> {
+                    saveJobInternal(draft)
+                }
+            }
+        }
+    }
+
+    fun onConflictDismiss() {
+        updateState {
+            copy(
+                showConflictDialog = false,
+                conflictingJobs = emptyList()
+            )
+        }
+    }
+
+    fun onConflictForceSave() {
+        updateState {
+            copy(
+                showConflictDialog = false,
+                conflictingJobs = emptyList()
+            )
+        }
+        val draft = _uiState.value.toDraft()
+        viewModelScope.launch(dispatcher) {
+            saveJobInternal(draft)
+        }
+    }
+
+    private suspend fun saveJobInternal(draft: JobDraft) {
+        updateState { copy(isLoading = true) }
+        val result = when (_uiState.value.mode) {
+            FormMode.Edit -> jobGateway.updateJob(jobId, draft)
+            else -> jobGateway.saveJob(draft)
+        }
+
+        when (result) {
+            is JobResult.Success -> {
+                updateState {
+                    copy(
+                        isLoading = false,
+                        isSaved = true
+                    )
+                }
+            }
+            is JobResult.Error -> {
+                updateState {
+                    copy(
+                        isLoading = false,
+                        saveErrorMessage = result.message
+                    )
+                }
+            }
+        }
     }
 
     fun onScrollToFieldConsumed() {
@@ -550,7 +633,55 @@ class JobFormViewModel(
 
     private fun loadJobData(id: Long, isDuplicate: Boolean) {
         viewModelScope.launch(dispatcher) {
-            // TODO FE-11: load dari gateway
+            val job = jobGateway.observeJob(id).firstOrNull() ?: return@launch
+            val durasiHours = job.durasiMenit / 60.0
+            val durasiStr = if (durasiHours % 1.0 == 0.0) {
+                durasiHours.toInt().toString()
+            } else {
+                durasiHours.toString().replace('.', ',')
+            }
+
+            if (isDuplicate) {
+                // Duplikat menyalin nama, jam mulai, durasi, alamat, shareloc, sumber, fee, catatan;
+                // tanggal dan acara kosong, dibayar 0.
+                updateState {
+                    copy(
+                        namaPengantin1 = job.namaPengantin1,
+                        namaPengantin2 = job.namaPengantin2,
+                        tanggalEpochDay = null,
+                        jamMulaiMenit = job.jamMulaiMenit,
+                        durasiText = durasiStr,
+                        acara = "",
+                        alamat = job.alamat,
+                        shareloc = job.shareloc,
+                        sumberJob = job.sumberJob,
+                        feeText = job.fee.toString(),
+                        dibayarText = "0",
+                        catatan = job.catatan,
+                        sourceJobName = "${job.namaPengantin1} & ${job.namaPengantin2}",
+                        isLunasEnabled = JobFormValidator.isLunasEnabled(job.fee.toString())
+                    )
+                }
+            } else {
+                // Ubah mempertahankan seluruh field
+                updateState {
+                    copy(
+                        namaPengantin1 = job.namaPengantin1,
+                        namaPengantin2 = job.namaPengantin2,
+                        tanggalEpochDay = job.tanggal,
+                        jamMulaiMenit = job.jamMulaiMenit,
+                        durasiText = durasiStr,
+                        acara = job.acara,
+                        alamat = job.alamat,
+                        shareloc = job.shareloc,
+                        sumberJob = job.sumberJob,
+                        feeText = job.fee.toString(),
+                        dibayarText = job.dibayar.toString(),
+                        catatan = job.catatan,
+                        isLunasEnabled = JobFormValidator.isLunasEnabled(job.fee.toString())
+                    )
+                }
+            }
         }
     }
 

@@ -188,3 +188,22 @@ when (val result = gateway.saveJob(draft)) {
 - **Penyatuan Ejaan (EC-23)**: Jika teks yang dimasukkan cocok secara case-insensitive dengan data yang sudah pernah tercatat, gunakan ejaan lama (bila terdapat beberapa variasi ejaan di data riwayat, ejaan yang paling awal tercatat dipilih sebagai aturan deterministik).
 - **Nilai Baru**: Jika teks belum pernah ada pada data sebelumnya, teks baru yang telah dirapikan spasinya disimpan apa adanya.
 
+## Dialog Peringatan Jadwal Bertabrakan (FE-12)
+
+**Keputusan**: Pemeriksaan jadwal bertabrakan (bentrok) dilakukan melalui kontrak `JobGateway.checkConflict` sebelum mutasi simpan, menggunakan perhitungan interval menit absolut berbasis simulasi frontend.
+
+**Aturan Deteksi Bentrok**:
+- **Menit Absolut**: Waktu dihitung dalam menit absolut dari epoch (`tanggal * 1440L + jamMulaiMenit`) untuk menangani durasi yang melewati tengah malam (EC-4).
+- **Kandidat Tanggal**: Dibatasi pada rentang tanggal `tanggal - 1` hingga `tanggal + 1` hari.
+- **Kondisi Overlap**: Dua rentang [mulaiA, selesaiA) dan [mulaiB, selesaiB) bertabrakan jika `mulaiA < selesaiB && mulaiB < selesaiA`.
+- **Interval Berurutan**: Job yang bersambungan tanpa jeda (mulaiB == selesaiA) dianggap valid dan bukan bentrok (EC-5).
+- **Mode Ubah**: Job yang sedang disunting dikecualikan dari pemeriksaan terhadap dirinya sendiri via `excludeId` (EC-6).
+
+**Hierarki Visual dan Perilaku Dialog**:
+- **Sifat Non-Blocking (FR-1.8, D-7)**: Dialog bersifat memperingatkan risiko tanpa memblokir kehendak pengguna.
+- **Bobot Tombol (D-7)**:
+  - Tombol **Kembali** (Filled/Primary) diletakkan di atas sebagai aksi utama untuk mengutamakan kehati-hatian. Memilih Kembali menutup dialog, tidak menyimpan ke gateway, dan mempertahankan isian form pengguna.
+  - Tombol **Tetap Simpan** (Outlined) diletakkan di bawah untuk mengizinkan penyimpanan tepat satu kali tanpa looping dialog.
+- **Informasi Kartu Bentrok (D-5)**: Setiap item bentrok menampilkan Nama Pasangan, Tanggal, Acara, dan Rentang Jam (`formatDate · acara · formatTimeRange`).
+- **Daftar Dapat Digulir**: Kontainer daftar bentrok dibatasi tingginya dan dapat digulir secara vertikal guna mendukung nama panjang dan banyak konflik tanpa memotong tampilan dialog.
+

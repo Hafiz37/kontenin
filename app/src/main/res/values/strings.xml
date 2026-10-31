@@ -233,4 +233,10 @@
     <!-- Autocomplete Accessibility & Labels (FE-10) -->
     <string name="cd_autocomplete_dropdown">Daftar saran</string>
     <string name="cd_autocomplete_suggestion">Pilih saran: %s</string>
+
+    <!-- Conflict Dialog (FE-12) -->
+    <string name="conflict_dialog_title">Jadwal bertabrakan</string>
+    <string name="conflict_dialog_message">Job ini tumpang tindih dengan:</string>
+    <string name="action_save_anyway">Tetap Simpan</string>
+    <string name="cd_conflict_warning">Peringatan jadwal bertabrakan</string>
 </resources>

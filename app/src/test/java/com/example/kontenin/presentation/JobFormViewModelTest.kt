@@ -200,4 +200,197 @@ class JobFormViewModelTest {
         val expectedAcaraList = updatedJobs.map { it.acara }
         assertEquals(expectedAcaraList, viewModel.uiState.value.existingAcaraList)
     }
+
+    // ── Conflict Dialog Integration Tests (FE-12) ───────────────────────────
+
+    private fun fillValidForm(
+        tanggalEpochDay: Long = 20000L,
+        jamMulaiMenit: Int = 600,
+        durasiText: String = "2"
+    ) {
+        viewModel.onNamaPengantin1Change("Andi")
+        viewModel.onNamaPengantin2Change("Sari")
+        viewModel.onTanggalSelected(tanggalEpochDay)
+        viewModel.onJamMulaiSelected(jamMulaiMenit)
+        viewModel.onDurasiChange(durasiText)
+        viewModel.onAcaraChange("Resepsi")
+        viewModel.onSumberJobChange("Vendor A")
+        viewModel.onFeeChange("2000000")
+    }
+
+    @Test
+    fun `job 10_00-14_00 bertemu 14_00-16_00 tidak memicu dialog bentrok dan langsung tersimpan`() = runBlocking {
+        val tanggal = 20000L
+        // Seed job 10.00 - 14.00 (600, durasi 240)
+        gateway.saveJob(
+            JobDraft(
+                namaPengantin1 = "Budi",
+                namaPengantin2 = "Rina",
+                tanggal = tanggal,
+                jamMulaiMenit = 600,
+                durasiMenit = 240,
+                acara = "Akad",
+                sumberJob = "Vendor",
+                fee = 1000000L
+            )
+        )
+
+        // Isi form job baru mulai 14.00 durasi 2 jam (840, durasi 120 -> 14.00 - 16.00)
+        fillValidForm(tanggalEpochDay = tanggal, jamMulaiMenit = 840, durasiText = "2")
+
+        viewModel.onSaveClick()
+
+        assertFalse(viewModel.uiState.value.showConflictDialog)
+        assertTrue(viewModel.uiState.value.isSaved)
+    }
+
+    @Test
+    fun `job mulai 13_59 tumpang tindih dengan job 10_00-14_00 memicu dialog bentrok`() = runBlocking {
+        val tanggal = 20000L
+        // Seed job 10.00 - 14.00
+        gateway.saveJob(
+            JobDraft(
+                namaPengantin1 = "Budi",
+                namaPengantin2 = "Rina",
+                tanggal = tanggal,
+                jamMulaiMenit = 600,
+                durasiMenit = 240,
+                acara = "Akad",
+                sumberJob = "Vendor",
+                fee = 1000000L
+            )
+        )
+
+        // Isi form job baru mulai 13.59 (839)
+        fillValidForm(tanggalEpochDay = tanggal, jamMulaiMenit = 839, durasiText = "2")
+
+        viewModel.onSaveClick()
+
+        assertTrue(viewModel.uiState.value.showConflictDialog)
+        assertEquals(1, viewModel.uiState.value.conflictingJobs.size)
+        assertFalse(viewModel.uiState.value.isSaved)
+    }
+
+    @Test
+    fun `job 22_00-02_00 bertemu job hari berikut pukul 01_00 memicu dialog bentrok`() = runBlocking {
+        val hari1 = 20000L
+        val hari2 = 20001L
+
+        // Seed job lintas hari di hari1: 22.00 - 02.00 (1320, durasi 240)
+        gateway.saveJob(
+            JobDraft(
+                namaPengantin1 = "Joko",
+                namaPengantin2 = "Siti",
+                tanggal = hari1,
+                jamMulaiMenit = 1320,
+                durasiMenit = 240,
+                acara = "Resepsi Malam",
+                sumberJob = "Pribadi",
+                fee = 3000000L
+            )
+        )
+
+        // Job baru di hari2: pukul 01.00 (60)
+        fillValidForm(tanggalEpochDay = hari2, jamMulaiMenit = 60, durasiText = "2")
+
+        viewModel.onSaveClick()
+
+        assertTrue(viewModel.uiState.value.showConflictDialog)
+        assertEquals(1, viewModel.uiState.value.conflictingJobs.size)
+    }
+
+    @Test
+    fun `dialog bentrok aksi Kembali mempertahankan draft tanpa simpan`() = runBlocking {
+        val tanggal = 20000L
+        gateway.saveJob(
+            JobDraft(
+                namaPengantin1 = "Budi",
+                namaPengantin2 = "Rina",
+                tanggal = tanggal,
+                jamMulaiMenit = 600,
+                durasiMenit = 240,
+                acara = "Akad",
+                sumberJob = "Vendor",
+                fee = 1000000L
+            )
+        )
+
+        fillValidForm(tanggalEpochDay = tanggal, jamMulaiMenit = 700, durasiText = "2")
+        viewModel.onSaveClick()
+        assertTrue(viewModel.uiState.value.showConflictDialog)
+
+        // Klik Kembali
+        viewModel.onConflictDismiss()
+
+        assertFalse(viewModel.uiState.value.showConflictDialog)
+        assertFalse(viewModel.uiState.value.isSaved)
+        // Draft tetap utuh
+        assertEquals("Andi", viewModel.uiState.value.namaPengantin1)
+        assertEquals(700, viewModel.uiState.value.jamMulaiMenit)
+    }
+
+    @Test
+    fun `dialog bentrok aksi Tetap Simpan menyimpan job tepat satu kali`() = runBlocking {
+        val tanggal = 20000L
+        gateway.saveJob(
+            JobDraft(
+                namaPengantin1 = "Budi",
+                namaPengantin2 = "Rina",
+                tanggal = tanggal,
+                jamMulaiMenit = 600,
+                durasiMenit = 240,
+                acara = "Akad",
+                sumberJob = "Vendor",
+                fee = 1000000L
+            )
+        )
+
+        val initialJobCount = gateway.observeAllJobs().first().size
+
+        fillValidForm(tanggalEpochDay = tanggal, jamMulaiMenit = 700, durasiText = "2")
+        viewModel.onSaveClick()
+        assertTrue(viewModel.uiState.value.showConflictDialog)
+
+        // Klik Tetap Simpan
+        viewModel.onConflictForceSave()
+
+        assertFalse(viewModel.uiState.value.showConflictDialog)
+        assertTrue(viewModel.uiState.value.isSaved)
+
+        val updatedJobCount = gateway.observeAllJobs().first().size
+        assertEquals(initialJobCount + 1, updatedJobCount)
+    }
+
+    @Test
+    fun `ubah job dengan jadwal yang sama tidak bentrok dengan dirinya sendiri`() = runBlocking {
+        val tanggal = 20000L
+        val savedResult = gateway.saveJob(
+            JobDraft(
+                namaPengantin1 = "Doni",
+                namaPengantin2 = "Maya",
+                tanggal = tanggal,
+                jamMulaiMenit = 600,
+                durasiMenit = 120,
+                acara = "Akad",
+                sumberJob = "Pribadi",
+                fee = 2000000L
+            )
+        )
+        val savedJob = (savedResult as com.example.kontenin.contract.JobResult.Success).job
+
+        // Buat ViewModel dalam mode Edit dengan jobId
+        val editViewModel = JobFormViewModel(
+            jobGateway = gateway,
+            savedStateHandle = androidx.lifecycle.SavedStateHandle(),
+            jobId = savedJob.id,
+            mode = Routes.MODE_EDIT,
+            dispatcher = kotlinx.coroutines.Dispatchers.Unconfined
+        )
+
+        // Form terisi dengan jadwal yang sama
+        editViewModel.onSaveClick()
+
+        assertFalse(editViewModel.uiState.value.showConflictDialog)
+        assertTrue(editViewModel.uiState.value.isSaved)
+    }
 }

@@ -179,14 +179,13 @@ class DemoJobGateway(
         durasiMenit: Int,
         excludeId: Long?
     ): ConflictCheckResult {
-        val endTimeMinutes = jamMulaiMenit + durasiMenit
-        
-        val conflicts = jobs.value.values.filter { job ->
-            job.id != excludeId &&
-            job.tanggal == tanggal &&
-            !(job.jamMulaiMenit + job.durasiMenit <= jamMulaiMenit ||
-              job.jamMulaiMenit >= endTimeMinutes)
-        }
+        val conflicts = DemoConflictRules.findConflicts(
+            tanggal = tanggal,
+            jamMulaiMenit = jamMulaiMenit,
+            durasiMenit = durasiMenit,
+            allJobs = jobs.value.values,
+            excludeId = excludeId
+        )
         
         return if (conflicts.isEmpty()) {
             ConflictCheckResult.NoConflict

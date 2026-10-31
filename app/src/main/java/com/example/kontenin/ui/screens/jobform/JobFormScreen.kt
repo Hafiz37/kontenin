@@ -83,6 +83,13 @@ fun JobFormScreen(
         viewModel.onScrollToFieldConsumed()
     }
 
+    // Navigasi kembali setelah berhasil simpan (FE-11, FE-12)
+    LaunchedEffect(uiState.isSaved) {
+        if (uiState.isSaved) {
+            onNavigateBack()
+        }
+    }
+
     // Judul dinamis berdasarkan mode
     val screenTitle = when (uiState.mode) {
         FormMode.Edit -> stringResource(R.string.screen_edit_job)
@@ -255,6 +262,15 @@ fun JobFormScreen(
             onDismiss = viewModel::hideTimePicker,
             initialHour = hour,
             initialMinute = minute
+        )
+    }
+
+    // ── Dialog Peringatan Jadwal Bertabrakan (FE-12) ────────────────────────
+    if (uiState.showConflictDialog && uiState.conflictingJobs.isNotEmpty()) {
+        ConflictDialog(
+            conflicts = uiState.conflictingJobs,
+            onDismiss = viewModel::onConflictDismiss,
+            onConfirm = viewModel::onConflictForceSave
         )
     }
 }
