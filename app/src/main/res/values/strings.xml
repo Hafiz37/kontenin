@@ -171,4 +171,46 @@
     <string name="job_card_separator">·</string>
     <string name="time_range_next_day">%1$s - %2$s (%3$s)</string>
     <string name="time_range_same_day">%1$s - %2$s</string>
+
+    <!-- Job Form Sections & Fields (FE-08) -->
+    <string name="section_couple">Pasangan</string>
+    <string name="section_time">Waktu</string>
+    <string name="section_event_source">Acara dan sumber</string>
+    <string name="section_location">Lokasi</string>
+    <string name="section_payment">Pembayaran</string>
+    <string name="section_notes">Catatan</string>
+
+    <!-- Form Field Labels -->
+    <string name="field_name_1">Nama pengantin 1</string>
+    <string name="field_name_1_hint">Contoh: Andi</string>
+    <string name="field_name_2">Nama pengantin 2</string>
+    <string name="field_name_2_hint">Contoh: Sari</string>
+    <string name="field_date">Tanggal</string>
+    <string name="field_date_placeholder">Pilih tanggal</string>
+    <string name="field_date_helper">Tanggal acara pernikahan</string>
+    <string name="field_start_time">Jam mulai</string>
+    <string name="field_time_placeholder">Pilih jam</string>
+    <string name="field_duration">Durasi</string>
+    <string name="field_duration_unit">jam</string>
+    <string name="field_duration_helper">Lama liputan dalam jam (contoh: 4 atau 4,5)</string>
+    <string name="field_event">Acara</string>
+    <string name="field_event_hint">Contoh: Resepsi, Akad, Tedak Sinten</string>
+    <string name="field_source">Sumber job</string>
+    <string name="field_source_hint">Contoh: Pribadi, Vendor A</string>
+    <string name="field_address">Alamat</string>
+    <string name="field_address_hint">Alamat lokasi acara (opsional)</string>
+    <string name="field_shareloc">Shareloc</string>
+    <string name="field_shareloc_hint">Link Google Maps (opsional)</string>
+    <string name="field_fee">Fee</string>
+    <string name="field_paid">Sudah dibayar</string>
+    <string name="field_notes">Catatan</string>
+    <string name="field_notes_hint">Rundown, dress code, kontak PIC, dll (opsional)</string>
+
+    <!-- Form Screen Titles -->
+    <string name="screen_add_job_from">Tambah Job (Disalin dari %s)</string>
+
+    <!-- Accessibility - Form -->
+    <string name="cd_select_date">Pilih tanggal</string>
+    <string name="cd_select_time">Pilih jam</string>
+    <string name="action_select">Pilih</string>
 </resources>

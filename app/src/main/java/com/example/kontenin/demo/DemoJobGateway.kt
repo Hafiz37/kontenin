@@ -64,6 +64,10 @@ class DemoJobGateway(
             return JobResult.Error("Tanggal dan fee harus diisi")
         }
         
+        if (draft.jamMulaiMenit == null || draft.durasiMenit == null) {
+            return JobResult.Error("Jam mulai dan durasi harus diisi")
+        }
+        
         val now = clock.nowEpochMillis()
         val newJob = Job(
             id = nextId++,
@@ -104,6 +108,10 @@ class DemoJobGateway(
         
         if (draft.tanggal == null || draft.fee == null) {
             return JobResult.Error("Tanggal dan fee harus diisi")
+        }
+        
+        if (draft.jamMulaiMenit == null || draft.durasiMenit == null) {
+            return JobResult.Error("Jam mulai dan durasi harus diisi")
         }
         
         val existing = jobs.value[id]!!
