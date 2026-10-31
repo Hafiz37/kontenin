@@ -3,12 +3,12 @@ package com.example.kontenin.presentation.jobform
 import com.example.kontenin.model.JobDraft
 
 /**
- * UI State untuk Job Form Screen (FE-08, FE-09).
+ * UI State untuk Job Form Screen (FE-08, FE-09, FE-10).
  *
  * Menyimpan draft mentah input pengguna, status validasi error,
- * status tombol Lunas, dan kontrol fokus/scroll ke error pertama.
+ * status tombol Lunas, saran autocomplete dinamis, dan kontrol fokus/scroll.
  *
- * Acuan: PRD §7, FR-1.1–1.2, FR-3.2, OQ-8; DESIGN §6.2, §7.
+ * Acuan: PRD §7, FR-1.1–1.2, FR-2, FR-3.2, EC-23, OQ-8; DESIGN §5.2, §6.2, §7.
  */
 data class JobFormUiState(
     // ── Draft input mentah ──────────────────────────────────────────────────
@@ -24,6 +24,14 @@ data class JobFormUiState(
     val feeText: String = "",              // Input mentah untuk parsing
     val dibayarText: String = "0",         // Default "0"
     val catatan: String = "",
+
+    // ── Autocomplete (FE-10) ────────────────────────────────────────────────
+    val existingAcaraList: List<String> = emptyList(),
+    val existingSumberJobList: List<String> = emptyList(),
+    val acaraSuggestions: List<String> = emptyList(),
+    val sumberJobSuggestions: List<String> = emptyList(),
+    val showAcaraSuggestions: Boolean = false,
+    val showSumberJobSuggestions: Boolean = false,
 
     // ── Status Validasi (FE-09) ─────────────────────────────────────────────
     val errors: Map<JobFormField, FormValidationError> = emptyMap(),
@@ -77,13 +85,16 @@ enum class FormMode {
 }
 
 /**
- * Konversi dari JobFormUiState ke JobDraft untuk validasi/simpan (FE-09, FE-11).
- * Menggunakan helper murni dari JobFormValidator.
+ * Konversi dari JobFormUiState ke JobDraft untuk validasi/simpan (FE-09, FE-10, FE-11).
+ * Menggunakan helper murni dari JobFormValidator dan normalisasi teks AutocompleteRules.
  */
 fun JobFormUiState.toDraft(): JobDraft {
     val durasiMenit = JobFormValidator.parseDurationMinutes(durasiText)
     val fee = JobFormValidator.parseFee(feeText)
     val dibayar = JobFormValidator.parseDibayar(dibayarText) ?: 0L
+
+    val normalizedAcara = AutocompleteRules.normalizeForSave(acara, existingAcaraList)
+    val normalizedSumber = AutocompleteRules.normalizeForSave(sumberJob, existingSumberJobList)
 
     return JobDraft(
         namaPengantin1 = namaPengantin1.trim(),
@@ -91,10 +102,10 @@ fun JobFormUiState.toDraft(): JobDraft {
         tanggal = tanggalEpochDay,
         jamMulaiMenit = jamMulaiMenit,
         durasiMenit = durasiMenit,
-        acara = acara.trim(),
+        acara = normalizedAcara,
         alamat = alamat.trim(),
         shareloc = shareloc.trim(),
-        sumberJob = sumberJob.trim(),
+        sumberJob = normalizedSumber,
         fee = fee,
         dibayar = dibayar,
         catatan = catatan.trim()

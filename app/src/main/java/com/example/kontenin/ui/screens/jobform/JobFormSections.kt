@@ -278,7 +278,13 @@ fun AcaraDanSumberSection(
     onSumberJobChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     onFieldBlur: (JobFormField) -> Unit = {},
-    focusRequesters: Map<JobFormField, FocusRequester> = emptyMap()
+    focusRequesters: Map<JobFormField, FocusRequester> = emptyMap(),
+    onAcaraFocus: () -> Unit = {},
+    onAcaraSuggestionSelected: (String) -> Unit = {},
+    onAcaraDismissSuggestions: () -> Unit = {},
+    onSumberJobFocus: () -> Unit = {},
+    onSumberJobSuggestionSelected: (String) -> Unit = {},
+    onSumberJobDismissSuggestions: () -> Unit = {}
 ) {
     val spacing = KonteninTheme.spacing
     val focusManager = LocalFocusManager.current
@@ -293,15 +299,20 @@ fun AcaraDanSumberSection(
         SectionHeading(title = stringResource(R.string.section_event_source))
         Spacer(modifier = Modifier.height(spacing.space3))
 
-        // Acara
-        KonteninTextField(
+        // Acara (Autocomplete FE-10)
+        com.example.kontenin.ui.components.AutocompleteField(
             value = uiState.acara,
             onValueChange = onAcaraChange,
+            suggestions = uiState.acaraSuggestions,
+            onSuggestionSelected = onAcaraSuggestionSelected,
             label = stringResource(R.string.field_event),
             placeholder = stringResource(R.string.field_event_hint),
-            singleLine = true,
             errorMessage = errAcara,
             isError = errAcara != null,
+            expanded = uiState.showAcaraSuggestions,
+            onExpandedChange = { isExpanded ->
+                if (isExpanded) onAcaraFocus() else onAcaraDismissSuggestions()
+            },
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
                 imeAction = ImeAction.Next
@@ -309,23 +320,34 @@ fun AcaraDanSumberSection(
             keyboardActions = KeyboardActions(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),
-            modifier = Modifier
+            modifier = Modifier.fillMaxWidth(),
+            textFieldModifier = Modifier
                 .fillMaxWidth()
                 .then(if (reqAcara != null) Modifier.focusRequester(reqAcara) else Modifier)
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        onAcaraFocus()
+                    }
+                }
                 .onFocusLost { onFieldBlur(JobFormField.ACARA) }
         )
 
         Spacer(modifier = Modifier.height(spacing.space4))
 
-        // Sumber job
-        KonteninTextField(
+        // Sumber job (Autocomplete FE-10)
+        com.example.kontenin.ui.components.AutocompleteField(
             value = uiState.sumberJob,
             onValueChange = onSumberJobChange,
+            suggestions = uiState.sumberJobSuggestions,
+            onSuggestionSelected = onSumberJobSuggestionSelected,
             label = stringResource(R.string.field_source),
             placeholder = stringResource(R.string.field_source_hint),
-            singleLine = true,
             errorMessage = errSumber,
             isError = errSumber != null,
+            expanded = uiState.showSumberJobSuggestions,
+            onExpandedChange = { isExpanded ->
+                if (isExpanded) onSumberJobFocus() else onSumberJobDismissSuggestions()
+            },
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words,
                 imeAction = ImeAction.Next
@@ -333,9 +355,15 @@ fun AcaraDanSumberSection(
             keyboardActions = KeyboardActions(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             ),
-            modifier = Modifier
+            modifier = Modifier.fillMaxWidth(),
+            textFieldModifier = Modifier
                 .fillMaxWidth()
                 .then(if (reqSumber != null) Modifier.focusRequester(reqSumber) else Modifier)
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        onSumberJobFocus()
+                    }
+                }
                 .onFocusLost { onFieldBlur(JobFormField.SUMBER_JOB) }
         )
     }

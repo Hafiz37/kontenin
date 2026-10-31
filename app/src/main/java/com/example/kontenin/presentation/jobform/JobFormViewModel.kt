@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kontenin.contract.JobGateway
 import com.example.kontenin.ui.navigation.Routes
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,18 +14,20 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel untuk Job Form Screen (FE-08, FE-09).
+ * ViewModel untuk Job Form Screen (FE-08, FE-09, FE-10).
  *
  * Mengelola draft input, validasi ber-tipe, status tombol Lunas,
- * scroll/fokus ke error pertama, dan mempertahankan draft saat configuration change.
+ * saran autocomplete acara dan sumber job dinamis dari JobGateway,
+ * normalisasi teks saat simpan, dan scroll/fokus ke error pertama.
  *
- * Acuan: PRD §7, FR-1.1–1.2, FR-3.2, OQ-8; DESIGN §6.2, §7.
+ * Acuan: PRD §7, FR-1.1–1.2, FR-2, FR-3.2, EC-23, OQ-8; DESIGN §5.2, §6.2, §7.
  */
 class JobFormViewModel(
     private val jobGateway: JobGateway,
     private val savedStateHandle: SavedStateHandle,
     private val jobId: Long,
     mode: String,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -44,6 +48,29 @@ class JobFormViewModel(
         // Sync initial isLunasEnabled
         val currentFee = _uiState.value.feeText
         _uiState.update { it.copy(isLunasEnabled = JobFormValidator.isLunasEnabled(currentFee)) }
+
+        // Observasi seluruh job dari gateway untuk autocomplete dinamis (FE-10)
+        viewModelScope.launch(dispatcher) {
+            jobGateway.observeAllJobs().collect { allJobs ->
+                val acaraList = allJobs.map { it.acara }
+                val sumberList = allJobs.map { it.sumberJob }
+
+                _uiState.update { state ->
+                    state.copy(
+                        existingAcaraList = acaraList,
+                        existingSumberJobList = sumberList,
+                        acaraSuggestions = AutocompleteRules.getSuggestions(
+                            query = state.acara,
+                            existingValues = acaraList
+                        ),
+                        sumberJobSuggestions = AutocompleteRules.getSuggestions(
+                            query = state.sumberJob,
+                            existingValues = sumberList
+                        )
+                    )
+                }
+            }
+        }
 
         // Load job data untuk mode Edit atau Duplicate
         if (mode == Routes.MODE_EDIT || mode == Routes.MODE_DUPLICATE) {
@@ -142,9 +169,12 @@ class JobFormViewModel(
         }
     }
 
+    // ── Autocomplete Acara Handlers (FE-10) ──────────────────────────────────
+
     fun onAcaraChange(value: String) {
         saveToSavedState("acara", value)
         updateState {
+            val suggestions = AutocompleteRules.getSuggestions(value, existingAcaraList)
             val shouldRevalidate = touchedFields.contains(JobFormField.ACARA) ||
                 errors.containsKey(JobFormField.ACARA)
             val updatedErrors = if (shouldRevalidate) {
@@ -154,9 +184,108 @@ class JobFormViewModel(
             } else {
                 errors
             }
-            copy(acara = value, errors = updatedErrors)
+            copy(
+                acara = value,
+                acaraSuggestions = suggestions,
+                showAcaraSuggestions = suggestions.isNotEmpty(),
+                errors = updatedErrors
+            )
         }
     }
+
+    fun onAcaraFocus() {
+        updateState {
+            val suggestions = AutocompleteRules.getSuggestions(acara, existingAcaraList)
+            copy(
+                acaraSuggestions = suggestions,
+                showAcaraSuggestions = suggestions.isNotEmpty()
+            )
+        }
+    }
+
+    fun onAcaraSuggestionSelected(suggestion: String) {
+        saveToSavedState("acara", suggestion)
+        updateState {
+            val shouldRevalidate = touchedFields.contains(JobFormField.ACARA) ||
+                errors.containsKey(JobFormField.ACARA)
+            val updatedErrors = if (shouldRevalidate) {
+                val err = JobFormValidator.validateAcara(suggestion)
+                if (err != null) errors + (JobFormField.ACARA to err)
+                else errors - JobFormField.ACARA
+            } else {
+                errors
+            }
+            copy(
+                acara = suggestion,
+                showAcaraSuggestions = false,
+                errors = updatedErrors
+            )
+        }
+    }
+
+    fun onAcaraDismissSuggestions() {
+        updateState { copy(showAcaraSuggestions = false) }
+    }
+
+    // ── Autocomplete Sumber Job Handlers (FE-10) ─────────────────────────────
+
+    fun onSumberJobChange(value: String) {
+        saveToSavedState("sumberJob", value)
+        updateState {
+            val suggestions = AutocompleteRules.getSuggestions(value, existingSumberJobList)
+            val shouldRevalidate = touchedFields.contains(JobFormField.SUMBER_JOB) ||
+                errors.containsKey(JobFormField.SUMBER_JOB)
+            val updatedErrors = if (shouldRevalidate) {
+                val err = JobFormValidator.validateSumberJob(value)
+                if (err != null) errors + (JobFormField.SUMBER_JOB to err)
+                else errors - JobFormField.SUMBER_JOB
+            } else {
+                errors
+            }
+            copy(
+                sumberJob = value,
+                sumberJobSuggestions = suggestions,
+                showSumberJobSuggestions = suggestions.isNotEmpty(),
+                errors = updatedErrors
+            )
+        }
+    }
+
+    fun onSumberJobFocus() {
+        updateState {
+            val suggestions = AutocompleteRules.getSuggestions(sumberJob, existingSumberJobList)
+            copy(
+                sumberJobSuggestions = suggestions,
+                showSumberJobSuggestions = suggestions.isNotEmpty()
+            )
+        }
+    }
+
+    fun onSumberJobSuggestionSelected(suggestion: String) {
+        saveToSavedState("sumberJob", suggestion)
+        updateState {
+            val shouldRevalidate = touchedFields.contains(JobFormField.SUMBER_JOB) ||
+                errors.containsKey(JobFormField.SUMBER_JOB)
+            val updatedErrors = if (shouldRevalidate) {
+                val err = JobFormValidator.validateSumberJob(suggestion)
+                if (err != null) errors + (JobFormField.SUMBER_JOB to err)
+                else errors - JobFormField.SUMBER_JOB
+            } else {
+                errors
+            }
+            copy(
+                sumberJob = suggestion,
+                showSumberJobSuggestions = false,
+                errors = updatedErrors
+            )
+        }
+    }
+
+    fun onSumberJobDismissSuggestions() {
+        updateState { copy(showSumberJobSuggestions = false) }
+    }
+
+    // ── Lokasi, Pembayaran, dan Catatan Handlers ─────────────────────────────
 
     fun onAlamatChange(value: String) {
         val trimmed = value.take(300)
@@ -198,22 +327,6 @@ class JobFormViewModel(
         }
     }
 
-    fun onSumberJobChange(value: String) {
-        saveToSavedState("sumberJob", value)
-        updateState {
-            val shouldRevalidate = touchedFields.contains(JobFormField.SUMBER_JOB) ||
-                errors.containsKey(JobFormField.SUMBER_JOB)
-            val updatedErrors = if (shouldRevalidate) {
-                val err = JobFormValidator.validateSumberJob(value)
-                if (err != null) errors + (JobFormField.SUMBER_JOB to err)
-                else errors - JobFormField.SUMBER_JOB
-            } else {
-                errors
-            }
-            copy(sumberJob = value, errors = updatedErrors)
-        }
-    }
-
     fun onFeeChange(value: String) {
         val filtered = value.filter { it.isDigit() }
         saveToSavedState("feeText", filtered)
@@ -222,7 +335,6 @@ class JobFormViewModel(
         updateState {
             var updatedErrors = errors
 
-            // Revalidasi fee jika sudah disentuh/ada error
             val shouldRevalidateFee = touchedFields.contains(JobFormField.FEE) ||
                 errors.containsKey(JobFormField.FEE)
             if (shouldRevalidateFee) {
@@ -231,7 +343,6 @@ class JobFormViewModel(
                 else updatedErrors - JobFormField.FEE
             }
 
-            // Selalu periksa hubungan fee dengan dibayar jika dibayar sudah diisi/ada error
             val shouldRevalidateDibayar = dibayarText.isNotBlank() ||
                 touchedFields.contains(JobFormField.DIBAYAR) ||
                 errors.containsKey(JobFormField.DIBAYAR)
@@ -293,10 +404,6 @@ class JobFormViewModel(
 
     // ── Field Blur Handling (FE-09) ─────────────────────────────────────────
 
-    /**
-     * Dipanggil saat suatu kolom kehilangan fokus.
-     * Aturan: Validasi field yang sudah diisi saat kehilangan fokus.
-     */
     fun onFieldBlur(field: JobFormField) {
         updateState {
             val newTouched = touchedFields + field
@@ -368,11 +475,6 @@ class JobFormViewModel(
         updateState { copy(showTimePicker = false) }
     }
 
-    /**
-     * Tombol Lunas: mengisi dibayar = fee.
-     * Hanya aktif saat fee valid dan fee > 0.
-     * Menghapus error pada kolom dibayar jika ada.
-     */
     fun onLunasClick() {
         val currentFee = _uiState.value.feeText.filter { it.isDigit() }
         if (JobFormValidator.isLunasEnabled(currentFee)) {
@@ -386,21 +488,25 @@ class JobFormViewModel(
         }
     }
 
-    /**
-     * Validasi seluruh form saat Simpan ditekan.
-     * Jika ada error, tampilkan semua error, dan gulir/fokus ke error pertama.
-     * Tidak memanggil gateway jika tidak valid.
-     */
     fun onSaveClick() {
         val state = _uiState.value
+
+        // Normalisasi acara dan sumber job sebelum simpan (FE-10)
+        val normalizedAcara = AutocompleteRules.normalizeForSave(state.acara, state.existingAcaraList)
+        val normalizedSumberJob = AutocompleteRules.normalizeForSave(state.sumberJob, state.existingSumberJobList)
+
+        // Perbarui input dengan hasil normalisasi
+        saveToSavedState("acara", normalizedAcara)
+        saveToSavedState("sumberJob", normalizedSumberJob)
+
         val validationErrors = JobFormValidator.validateAll(
             namaPengantin1 = state.namaPengantin1,
             namaPengantin2 = state.namaPengantin2,
             tanggalEpochDay = state.tanggalEpochDay,
             jamMulaiMenit = state.jamMulaiMenit,
             durasiText = state.durasiText,
-            acara = state.acara,
-            sumberJob = state.sumberJob,
+            acara = normalizedAcara,
+            sumberJob = normalizedSumberJob,
             alamat = state.alamat,
             shareloc = state.shareloc,
             feeText = state.feeText,
@@ -409,29 +515,33 @@ class JobFormViewModel(
         )
 
         if (validationErrors.isNotEmpty()) {
-            // Temukan error pertama berdasarkan urutan JobFormField
             val firstErrorField = JobFormField.entries.firstOrNull { validationErrors.containsKey(it) }
 
             updateState {
                 copy(
+                    acara = normalizedAcara,
+                    sumberJob = normalizedSumberJob,
                     errors = validationErrors,
                     touchedFields = JobFormField.entries.toSet(),
                     scrollToField = firstErrorField
                 )
             }
-            // Mencegah simpan dan tidak memanggil gateway
             return
         }
 
-        // Form valid: bersihkan error
-        updateState { copy(errors = emptyMap(), scrollToField = null) }
+        // Form valid: bersihkan error dan update state dengan teks yang telah dinormalisasi
+        updateState {
+            copy(
+                acara = normalizedAcara,
+                sumberJob = normalizedSumberJob,
+                errors = emptyMap(),
+                scrollToField = null
+            )
+        }
 
         // TODO FE-11: simpan ke gateway
     }
 
-    /**
-     * Reset trigger scrollToField setelah UI selesai melakukan scroll/fokus.
-     */
     fun onScrollToFieldConsumed() {
         updateState { copy(scrollToField = null) }
     }
@@ -439,7 +549,7 @@ class JobFormViewModel(
     // ── Private helpers ─────────────────────────────────────────────────────
 
     private fun loadJobData(id: Long, isDuplicate: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             // TODO FE-11: load dari gateway
         }
     }
@@ -468,7 +578,6 @@ class JobFormViewModel(
 
         val lunasEnabled = JobFormValidator.isLunasEnabled(feeText)
 
-        // Update state dengan restored values
         _uiState.update {
             it.copy(
                 namaPengantin1 = namaPengantin1,

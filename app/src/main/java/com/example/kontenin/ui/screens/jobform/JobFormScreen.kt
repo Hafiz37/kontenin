@@ -162,13 +162,19 @@ fun JobFormScreen(
 
                 Spacer(modifier = Modifier.height(spacing.space5))
 
-                // 3. Seksi Acara dan Sumber
+                // 3. Seksi Acara dan Sumber (Autocomplete FE-10)
                 AcaraDanSumberSection(
                     uiState = uiState,
                     onAcaraChange = viewModel::onAcaraChange,
                     onSumberJobChange = viewModel::onSumberJobChange,
                     onFieldBlur = viewModel::onFieldBlur,
-                    focusRequesters = focusRequesters
+                    focusRequesters = focusRequesters,
+                    onAcaraFocus = viewModel::onAcaraFocus,
+                    onAcaraSuggestionSelected = viewModel::onAcaraSuggestionSelected,
+                    onAcaraDismissSuggestions = viewModel::onAcaraDismissSuggestions,
+                    onSumberJobFocus = viewModel::onSumberJobFocus,
+                    onSumberJobSuggestionSelected = viewModel::onSumberJobSuggestionSelected,
+                    onSumberJobDismissSuggestions = viewModel::onSumberJobDismissSuggestions
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space5))

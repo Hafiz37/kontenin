@@ -229,4 +229,8 @@
     <string name="validation_err_paid_exceeds_fee">Tidak boleh lebih dari fee</string>
     <string name="validation_err_notes_max_1000">Maksimal 1000 karakter</string>
     <string name="validation_err_overflow">Nominal terlalu besar</string>
+
+    <!-- Autocomplete Accessibility & Labels (FE-10) -->
+    <string name="cd_autocomplete_dropdown">Daftar saran</string>
+    <string name="cd_autocomplete_suggestion">Pilih saran: %s</string>
 </resources>

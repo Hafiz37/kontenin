@@ -169,3 +169,22 @@ when (val result = gateway.saveJob(draft)) {
 - Interface Segregation Principle (SOLID)
 - Implementasi nyata dapat menggunakan service berbeda (Room, NotificationManager, Intent)
 - Testing lebih mudah dengan mock per-gateway
+
+## Autocomplete Acara dan Sumber Job (FE-10)
+
+**Keputusan**: Autocomplete menggunakan pencocokan substring tidak sensitif kapital (case-insensitive), bersumber dinamis dari `JobGateway.observeAllJobs()`, tanpa tabel/master data terpisah.
+
+**Aturan Pencarian dan Saran**:
+- **Pencocokan**: Substring matching tidak membedakan huruf besar/kecil (`contains(query, ignoreCase = true)`).
+- **Pengurutan (Ranking)**:
+  1. Frekuensi pemakaian tertinggi (descending).
+  2. Tie-breaker saat frekuensi seri: urut alfabetis (ascending, case-insensitive) secara deterministik.
+- **Batas Maksimal**: Maksimal 5 saran ditampilkan saat kolom difokuskan atau sedang diketik.
+- **Ketiadaan Saran**: Dropdown disembunyikan jika tidak ada saran yang cocok.
+- **Teks Bebas**: Kolom tetap berupa input teks bebas; memilih saran mengisi kolom dan pengguna bebas menyunting kembali isinya.
+
+**Aturan Normalisasi Sebelum Simpan**:
+- **Spasi**: Spasi di awal/akhir dibersihkan (`trim()`), dan spasi ganda berturutan dirapikan menjadi spasi tunggal (`\s+` -> `" "`).
+- **Penyatuan Ejaan (EC-23)**: Jika teks yang dimasukkan cocok secara case-insensitive dengan data yang sudah pernah tercatat, gunakan ejaan lama (bila terdapat beberapa variasi ejaan di data riwayat, ejaan yang paling awal tercatat dipilih sebagai aturan deterministik).
+- **Nilai Baru**: Jika teks belum pernah ada pada data sebelumnya, teks baru yang telah dirapikan spasinya disimpan apa adanya.
+
