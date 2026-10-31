@@ -1,3 +1,34 @@
 <resources>
-    <string name="app_name">kontenin</string>
+    <string name="app_name">Kontenin</string>
+
+    <!-- Theme & Preview Labels (FE-03) -->
+    <string name="theme_preview_title">Token Desain Kontenin</string>
+    <string name="theme_preview_subtitle">Pratinjau tipografi, warna, dan token status</string>
+    <string name="theme_section_typography">Tipografi &amp; Angka Tabular</string>
+    <string name="theme_section_colors">Palet Warna</string>
+    <string name="theme_section_actions">Aksi &amp; Tombol</string>
+    <string name="theme_section_status">Token Status &amp; Peringatan</string>
+
+    <!-- Actions & Buttons -->
+    <string name="theme_btn_primary">Simpan Job (Utama)</string>
+    <string name="theme_btn_tonal">Tandai Lunas (Tonal)</string>
+    <string name="theme_btn_outline">Duplikat Job (Outline)</string>
+    <string name="theme_btn_destructive">Hapus Job (Destruktif)</string>
+    <string name="theme_fab_add_job">Tambah Job</string>
+
+    <!-- Sample Data from PRD & DESIGN -->
+    <string name="theme_sample_couple">Andi &amp; Sari</string>
+    <string name="theme_sample_date_time">Sab, 18 Okt 2026 · 10.00 - 14.00</string>
+    <string name="theme_sample_nominal">Rp 3.500.000</string>
+    <string name="theme_sample_large_number">Rp 12.500.000</string>
+    <string name="theme_sample_body">Gedung Harmoni, Jl. Merpati No. 12, Sleman</string>
+    <string name="theme_sample_body_small">Resepsi · Instagram · DP Rp 1.000.000</string>
+    <string name="theme_sample_caption">Label sekunder (minimum 13 sp)</string>
+
+    <!-- Status & Tokens -->
+    <string name="theme_chip_warning">Kurang Rp 1.500.000</string>
+    <string name="theme_chip_warning_short">Belum lunas</string>
+    <string name="theme_sample_error">Fee belum diisi dengan benar</string>
+    <string name="theme_sample_snackbar">Perubahan berhasil disimpan</string>
+    <string name="theme_sample_snackbar_action">Coba lagi</string>
 </resources>
