@@ -31,4 +31,70 @@
     <string name="theme_sample_error">Fee belum diisi dengan benar</string>
     <string name="theme_sample_snackbar">Perubahan berhasil disimpan</string>
     <string name="theme_sample_snackbar_action">Coba lagi</string>
+
+    <!-- Shared UI Components (FE-04) -->
+    <!-- Action Button Labels -->
+    <string name="action_cancel">Batal</string>
+    <string name="action_back">Kembali</string>
+    <string name="action_retry">Coba lagi</string>
+    <string name="action_save">Simpan</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_edit">Ubah</string>
+    <string name="action_duplicate">Duplikat</string>
+    <string name="action_paid">Lunas</string>
+    <string name="action_mark_paid">Tandai Lunas</string>
+    <string name="action_edit_payment">Ubah Pembayaran</string>
+    <string name="action_close">Tutup</string>
+    <string name="action_continue">Lanjut</string>
+    <string name="action_later">Nanti</string>
+    <string name="action_add_job">Tambah Job</string>
+    <string name="action_open_maps">Buka Maps</string>
+    <string name="action_enable">Aktifkan</string>
+
+    <!-- Accessibility Content Descriptions -->
+    <string name="cd_back">Kembali</string>
+    <string name="cd_close">Tutup</string>
+    <string name="cd_warning">Peringatan</string>
+    <string name="cd_info">Informasi</string>
+    <string name="cd_error">Peringatan kesalahan</string>
+    <string name="cd_add">Tambah</string>
+    <string name="cd_check">Selesai</string>
+    <string name="cd_delete">Hapus</string>
+    <string name="cd_edit">Ubah</string>
+    <string name="cd_payment_chip_prefix">Status pembayaran:</string>
+    <string name="cd_loading">Sedang memuat</string>
+
+    <!-- Field & Input Strings -->
+    <string name="currency_prefix">Rp</string>
+    <string name="char_counter_format">%1$d/%2$d</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_delete_job_title">Hapus job ini?</string>
+    <string name="dialog_delete_job_message">Job Andi &amp; Sari dan 4 pengingatnya akan dihapus. Tindakan ini tidak bisa dibatalkan.</string>
+    <string name="dialog_discard_title">Buang perubahan?</string>
+    <string name="dialog_discard_message">Perubahan yang belum disimpan akan hilang.</string>
+    <string name="dialog_processing">Memproses…</string>
+
+    <!-- Empty States -->
+    <string name="empty_upcoming_title">Belum ada job mendatang</string>
+    <string name="empty_upcoming_desc">Tambahkan jadwal job baru Anda.</string>
+    <string name="empty_history_title">Belum ada riwayat job</string>
+    <string name="empty_unpaid_title">Semua job di tab ini sudah lunas</string>
+    <string name="empty_recap_title">Belum ada job pada periode ini</string>
+    <string name="empty_receivables_title">Tidak ada fee yang perlu ditagih</string>
+
+    <!-- Permission Banner -->
+    <string name="banner_permission_title">Izinkan notifikasi</string>
+    <string name="banner_permission_desc">Kontenin memakai notifikasi untuk mengingatkan jadwal job Anda sebelum acara.</string>
+    <string name="banner_permission_action">Aktifkan</string>
+
+    <!-- Gallery Preview Titles -->
+    <string name="gallery_title">Galeri Komponen Bersama</string>
+    <string name="gallery_subtitle">Pratinjau tombol, kolom input, chip, dialog, dan state</string>
+    <string name="gallery_section_buttons">Tombol &amp; Aksi</string>
+    <string name="gallery_section_fields">Kolom Teks &amp; Uang</string>
+    <string name="gallery_section_chips">Chip Pembayaran &amp; Heading</string>
+    <string name="gallery_section_banners">Banner Izin</string>
+    <string name="gallery_section_dialogs">Dialog Konfirmasi</string>
+    <string name="gallery_section_empty_loading">Empty State &amp; Loading</string>
 </resources>
