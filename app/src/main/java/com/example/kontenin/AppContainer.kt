@@ -65,4 +65,12 @@ class AppContainer(
             jobId = jobId
         )
     }
+
+    // FE-15: RecapViewModel factory
+    fun createRecapViewModel(): com.example.kontenin.presentation.recap.RecapViewModel {
+        return com.example.kontenin.presentation.recap.RecapViewModel(
+            jobGateway = jobGateway,
+            clock = clock
+        )
+    }
 }

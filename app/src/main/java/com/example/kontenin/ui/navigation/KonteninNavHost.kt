@@ -68,7 +68,21 @@ fun KonteninNavHost(
         }
 
         composable(route = Routes.Recap.route) {
-            RecapScreen(snackbarHostState = snackbarHostState)
+            val viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.example.kontenin.presentation.recap.RecapViewModel>(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        return appContainer.createRecapViewModel() as T
+                    }
+                }
+            )
+            RecapScreen(
+                viewModel = viewModel,
+                snackbarHostState = snackbarHostState,
+                onNavigateToDetail = { id ->
+                    navController.navigate(Routes.JobDetail.createRoute(id))
+                },
+            )
         }
 
         composable(route = Routes.Settings.route) {

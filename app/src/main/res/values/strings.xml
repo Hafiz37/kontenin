@@ -249,4 +249,16 @@
     <string name="detail_empty_notes">Tidak ada catatan</string>
     <string name="detail_empty_address">Alamat belum diisi</string>
     <string name="cd_delete_job">Hapus job ini</string>
+
+    <!-- Recap Screen (FE-15) -->
+    <string name="recap_section_by_source">Per Sumber Job</string>
+    <string name="recap_section_job_list">Daftar Job</string>
+    <string name="recap_section_receivables">Piutang (semua periode)</string>
+    <string name="recap_total_jobs">Jumlah job</string>
+    <string name="recap_total_fee">Total fee</string>
+    <string name="recap_total_paid">Total dibayar</string>
+    <string name="recap_total_remaining">Total sisa</string>
+    <string name="recap_source_job_count">%d job</string>
+    <string name="recap_source_remaining">sisa %s</string>
+    <string name="recap_receivables_summary">Total sisa %1$s · %2$d job</string>
 </resources>
