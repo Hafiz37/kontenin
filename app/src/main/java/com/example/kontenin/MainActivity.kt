@@ -9,7 +9,8 @@ import com.example.kontenin.ui.theme.KonteninTheme
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var appContainer: AppContainer
+    // FE-07: Make appContainer internal so KonteninNavHost can access it
+    internal lateinit var appContainer: AppContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

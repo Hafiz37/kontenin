@@ -2,12 +2,16 @@ package com.example.kontenin.ui.navigation
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.kontenin.AppContainer
+import com.example.kontenin.MainActivity
 import com.example.kontenin.ui.screens.home.HomeScreen
 import com.example.kontenin.ui.screens.jobdetail.JobDetailScreen
 import com.example.kontenin.ui.screens.jobform.JobFormScreen
@@ -22,6 +26,8 @@ import com.example.kontenin.ui.screens.settings.SettingsScreen
  *   Home ──► JobDetail ──► JobForm (edit / duplicate)
  *   Home ──► JobForm   (add)
  *   Bottom bar: Home ↔ Recap ↔ Settings
+ *   
+ * Diupdate di FE-07 untuk menyediakan HomeViewModel dari AppContainer.
  */
 @Composable
 fun KonteninNavHost(
@@ -29,6 +35,12 @@ fun KonteninNavHost(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
+    // Ambil AppContainer dari MainActivity
+    val context = LocalContext.current
+    val appContainer = remember {
+        (context as? MainActivity)?.appContainer 
+            ?: throw IllegalStateException("AppContainer tidak ditemukan di MainActivity")
+    }
     NavHost(
         navController = navController,
         startDestination = Routes.Home.route,
@@ -38,7 +50,11 @@ fun KonteninNavHost(
         // ── Destinasi utama ───────────────────────────────────────────────────
 
         composable(route = Routes.Home.route) {
+            // FE-07: Create HomeViewModel per navigation entry
+            val homeViewModel = remember { appContainer.createHomeViewModel() }
+            
             HomeScreen(
+                viewModel = homeViewModel,
                 snackbarHostState = snackbarHostState,
                 onNavigateToJobDetail = { jobId ->
                     navController.navigate(Routes.JobDetail.createRoute(jobId))
