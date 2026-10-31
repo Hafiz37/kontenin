@@ -22,38 +22,49 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import com.example.kontenin.R
+import com.example.kontenin.presentation.jobform.FormMode
+import com.example.kontenin.presentation.jobform.JobFormViewModel
+import com.example.kontenin.ui.components.DatePickerModal
 import com.example.kontenin.ui.components.KonteninPrimaryButton
+import com.example.kontenin.ui.components.TimePickerModal
 import com.example.kontenin.ui.navigation.Routes
 import com.example.kontenin.ui.theme.KonteninTheme
+import java.time.LocalDate
 
 /**
- * Layar Form Job (FE-05 — kerangka placeholder).
+ * Layar Form Job dengan semua field input (FE-08).
  *
  * Mendukung tiga mode melalui argument navigasi:
  * - [Routes.MODE_ADD]       → judul "Tambah Job", jobId diabaikan
  * - [Routes.MODE_EDIT]      → judul "Ubah Job", jobId = target
- * - [Routes.MODE_DUPLICATE] → judul "Ubah Job" (duplikat), jobId = sumber
+ * - [Routes.MODE_DUPLICATE] → judul dinamis "Tambah Job (Disalin dari X & Y)"
  *
- * Fitur yang akan diisi pada FE-08:
- * - Field-field form job (nama klien, tanggal, fee, dll.)
- * - Validasi dan penyimpanan
+ * Fitur FE-08:
+ * - Semua 12 field input sesuai PRD §7
+ * - Draft state dengan SavedStateHandle untuk survive configuration change
+ * - Character counter < 20% untuk alamat dan catatan
+ * - Money field dengan separator ribuan
+ * - Duration field terima koma/titik
+ * - Sticky Simpan button
+ * - Scroll dengan keyboard inset
  *
- * Desain:
- * - TIDAK ada bottom navigation (layar turunan)
- * - Top App Bar dengan tombol ✕ (tutup / kembali)
- * - Area scroll dengan [imePadding] agar keyboard tidak menutupi field
- * - Sticky Simpan 56 dp di bawah area scroll
+ * Belum di FE-08:
+ * - Validasi error message → FE-09
+ * - Autocomplete acara/sumber → FE-10
+ * - Save ke gateway → FE-11
+ * - Conflict detection → FE-12
+ *
+ * Acuan: PRD §7, FR-1.1–1.2; DESIGN §6.2.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobFormScreen(
-    mode: String,
-    jobId: Long,
-    snackbarHostState: SnackbarHostState,
+    viewModel: JobFormViewModel,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -61,12 +72,19 @@ fun JobFormScreen(
     val spacing = KonteninTheme.spacing
     val dim     = KonteninTheme.dimensions
 
-    val screenTitle = when (mode) {
-        Routes.MODE_EDIT, Routes.MODE_DUPLICATE -> stringResource(R.string.screen_edit_job)
-        else                                    -> stringResource(R.string.screen_add_job)
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Judul dinamis berdasarkan mode
+    val screenTitle = when (uiState.mode) {
+        FormMode.Edit -> stringResource(R.string.screen_edit_job)
+        FormMode.Duplicate -> {
+            uiState.sourceJobName?.let {
+                stringResource(R.string.screen_add_job_from, it)
+            } ?: stringResource(R.string.screen_add_job)
+        }
+        else -> stringResource(R.string.screen_add_job)
     }
 
-    // Gunakan Column bungkus agar sticky Simpan tidak masuk dalam scroll
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -112,13 +130,57 @@ fun JobFormScreen(
             ) {
                 Spacer(modifier = Modifier.height(spacing.space4))
 
-                // Placeholder — konten form diisi FE-08
-                Text(
-                    text      = stringResource(R.string.placeholder_job_form),
-                    style     = KonteninTheme.typography.bodyMedium,
-                    color     = colors.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    modifier  = Modifier.fillMaxWidth(),
+                // 1. Seksi Pasangan
+                PasanganSection(
+                    uiState = uiState,
+                    onNamaPengantin1Change = viewModel::onNamaPengantin1Change,
+                    onNamaPengantin2Change = viewModel::onNamaPengantin2Change
+                )
+
+                Spacer(modifier = Modifier.height(spacing.space5))
+
+                // 2. Seksi Waktu
+                WaktuSection(
+                    uiState = uiState,
+                    onShowDatePicker = viewModel::showDatePicker,
+                    onShowTimePicker = viewModel::showTimePicker,
+                    onDurasiChange = viewModel::onDurasiChange
+                )
+
+                Spacer(modifier = Modifier.height(spacing.space5))
+
+                // 3. Seksi Acara dan Sumber
+                AcaraDanSumberSection(
+                    uiState = uiState,
+                    onAcaraChange = viewModel::onAcaraChange,
+                    onSumberJobChange = viewModel::onSumberJobChange
+                )
+
+                Spacer(modifier = Modifier.height(spacing.space5))
+
+                // 4. Seksi Lokasi
+                LokasiSection(
+                    uiState = uiState,
+                    onAlamatChange = viewModel::onAlamatChange,
+                    onSharelocChange = viewModel::onSharelocChange
+                )
+
+                Spacer(modifier = Modifier.height(spacing.space5))
+
+                // 5. Seksi Pembayaran
+                PembayaranSection(
+                    uiState = uiState,
+                    onFeeChange = viewModel::onFeeChange,
+                    onDibayarChange = viewModel::onDibayarChange,
+                    onLunasClick = viewModel::onLunasClick
+                )
+
+                Spacer(modifier = Modifier.height(spacing.space5))
+
+                // 6. Seksi Catatan
+                CatatanSection(
+                    uiState = uiState,
+                    onCatatanChange = viewModel::onCatatanChange
                 )
 
                 Spacer(modifier = Modifier.height(spacing.space6))
@@ -131,7 +193,8 @@ fun JobFormScreen(
             ) {
                 KonteninPrimaryButton(
                     text     = stringResource(R.string.action_save),
-                    onClick  = { /* Placeholder — FE-08 */ },
+                    onClick  = viewModel::onSaveClick,
+                    enabled  = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
@@ -139,5 +202,32 @@ fun JobFormScreen(
                 )
             }
         }
+    }
+
+    // ── Date Picker Modal ───────────────────────────────────────────────────
+    if (uiState.showDatePicker) {
+        DatePickerModal(
+            onDateSelected = { date ->
+                viewModel.onTanggalSelected(date?.toEpochDay())
+            },
+            onDismiss = viewModel::hideDatePicker,
+            initialDate = uiState.tanggalEpochDay?.let { LocalDate.ofEpochDay(it) }
+        )
+    }
+
+    // ── Time Picker Modal ───────────────────────────────────────────────────
+    if (uiState.showTimePicker) {
+        val currentMinutes = uiState.jamMulaiMenit ?: 480 // Default 08:00
+        val hour = currentMinutes / 60
+        val minute = currentMinutes % 60
+        
+        TimePickerModal(
+            onTimeSelected = { totalMinutes ->
+                viewModel.onJamMulaiSelected(totalMinutes)
+            },
+            onDismiss = viewModel::hideTimePicker,
+            initialHour = hour,
+            initialMinute = minute
+        )
     }
 }

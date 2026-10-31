@@ -112,10 +112,23 @@ fun KonteninNavHost(
         ) { backStackEntry ->
             val mode  = backStackEntry.arguments?.getString(Routes.ARG_MODE)  ?: Routes.MODE_ADD
             val jobId = backStackEntry.arguments?.getLong(Routes.ARG_JOB_ID)  ?: Routes.DEFAULT_JOB_ID
+            
+            // FE-08: Create JobFormViewModel dengan SavedStateHandle
+            val viewModel = androidx.lifecycle.viewmodel.compose.viewModel<com.example.kontenin.presentation.jobform.JobFormViewModel>(
+                factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                        return appContainer.createJobFormViewModel(
+                            savedStateHandle = backStackEntry.savedStateHandle,
+                            jobId = jobId,
+                            mode = mode
+                        ) as T
+                    }
+                }
+            )
+            
             JobFormScreen(
-                mode  = mode,
-                jobId = jobId,
-                snackbarHostState = snackbarHostState,
+                viewModel = viewModel,
                 onNavigateBack = { navController.popBackStack() },
             )
         }

@@ -117,3 +117,23 @@ object KonteninDateTimeFormatter {
         return date.dayOfWeek.getDisplayName(TextStyle.SHORT, LOCALE_ID)
     }
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// Extension functions untuk kemudahan akses (FE-06, FE-08)
+// ══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Format LocalDate ke string dengan nama hari.
+ * Output: "Sab, 18 Okt 2026"
+ */
+fun formatDate(date: LocalDate): String {
+    return KonteninDateTimeFormatter.formatDate(date.toEpochDay())
+}
+
+/**
+ * Format waktu dari menit sejak tengah malam.
+ * Output: "10.00"
+ */
+fun formatTime(minutesSinceMidnight: Int): String {
+    return KonteninDateTimeFormatter.formatTime(minutesSinceMidnight)
+}
