@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -158,6 +159,10 @@ fun JobDetailLocationSection(
 @Composable
 fun JobDetailPaymentSection(
     jobDisplay: JobDisplay,
+    isMarkPaidVisible: Boolean,
+    onMarkPaid: () -> Unit,
+    onEditPayment: () -> Unit,
+    isUpdatingPayment: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val colors = KonteninTheme.colorScheme
@@ -190,6 +195,39 @@ fun JobDetailPaymentSection(
         jobDisplay.paymentChipText?.let { chipText ->
             Spacer(modifier = Modifier.height(spacing.space3))
             PaymentChip(text = chipText)
+        }
+
+        Spacer(modifier = Modifier.height(spacing.space3))
+
+        // Aksi Pembayaran: Tandai Lunas (hanya bila belum lunas & fee > 0) dan Ubah Pembayaran
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(spacing.space2),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (isMarkPaidVisible) {
+                FilledTonalButton(
+                    onClick = onMarkPaid,
+                    enabled = !isUpdatingPayment,
+                    shape = RoundedCornerShape(KonteninRadius.md),
+                ) {
+                    Text(
+                        text = stringResource(R.string.action_mark_paid),
+                        style = KonteninTheme.typography.labelLarge,
+                    )
+                }
+            }
+
+            OutlinedButton(
+                onClick = onEditPayment,
+                enabled = !isUpdatingPayment,
+                shape = RoundedCornerShape(KonteninRadius.md),
+            ) {
+                Text(
+                    text = stringResource(R.string.action_edit_payment),
+                    style = KonteninTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }

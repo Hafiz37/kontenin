@@ -15,7 +15,7 @@ class DemoJobGateway(
 ) : JobGateway {
     
     private val jobs = MutableStateFlow<Map<Long, Job>>(emptyMap())
-    private var scenario = initialScenario
+    var scenario: DemoScenario = initialScenario
     private var pendingOperationReleased = false
     private var nextId = 1L
     
@@ -34,9 +34,11 @@ class DemoJobGateway(
         pendingOperationReleased = false
     }
     
-    fun setScenario(newScenario: DemoScenario) {
+    fun setScenario(newScenario: DemoScenario, resetData: Boolean = true) {
         scenario = newScenario
-        resetToSeed()
+        if (resetData) {
+            resetToSeed()
+        }
     }
     
     fun releasePendingOperation() {
@@ -160,9 +162,19 @@ class DemoJobGateway(
         if (scenario == DemoScenario.SAVE_ERROR) {
             return PaymentUpdateResult.Error("Simulasi gagal update pembayaran")
         }
+
+        if (scenario == DemoScenario.PENDING) {
+            while (!pendingOperationReleased) {
+                delay(100)
+            }
+        }
         
         val existing = jobs.value[id] 
             ?: return PaymentUpdateResult.Error("Job tidak ditemukan")
+
+        if (dibayar < 0L || dibayar > existing.fee) {
+            return PaymentUpdateResult.Error("Jumlah dibayar tidak boleh melebihi fee")
+        }
         
         val updated = existing.copy(
             dibayar = dibayar,

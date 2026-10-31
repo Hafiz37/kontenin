@@ -95,6 +95,19 @@ fun JobDetailScreen(
         )
     }
 
+    // ── Dialog Ubah Pembayaran (FE-14) ─────────────────────────────────────────
+    if (uiState.showPaymentDialog && uiState.job != null) {
+        PaymentDialog(
+            currentFee = uiState.job!!.fee,
+            amountText = uiState.paymentDraftText,
+            onAmountChange = viewModel::onPaymentDraftChange,
+            errorMessageResId = uiState.paymentDraftErrorResId,
+            onConfirm = viewModel::onPaymentDialogConfirm,
+            onDismissRequest = viewModel::onPaymentDialogDismiss,
+            isLoading = uiState.isUpdatingPayment,
+        )
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -169,8 +182,14 @@ fun JobDetailScreen(
 
                     Spacer(modifier = Modifier.height(spacing.space4))
 
-                    // Seksi Pembayaran
-                    JobDetailPaymentSection(jobDisplay = jobDisplay)
+                    // Seksi Pembayaran (FE-14)
+                    JobDetailPaymentSection(
+                        jobDisplay = jobDisplay,
+                        isMarkPaidVisible = uiState.isMarkPaidVisible,
+                        onMarkPaid = viewModel::onMarkPaidClick,
+                        onEditPayment = viewModel::onEditPaymentClick,
+                        isUpdatingPayment = uiState.isUpdatingPayment,
+                    )
 
                     Spacer(modifier = Modifier.height(spacing.space4))
 

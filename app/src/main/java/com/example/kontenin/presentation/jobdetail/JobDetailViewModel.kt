@@ -6,7 +6,9 @@ import com.example.kontenin.contract.DeleteResult
 import com.example.kontenin.contract.ExternalActionGateway
 import com.example.kontenin.contract.JobGateway
 import com.example.kontenin.contract.OpenMapsResult
+import com.example.kontenin.contract.PaymentUpdateResult
 import com.example.kontenin.model.Job
+import com.example.kontenin.presentation.PaymentValidator
 import com.example.kontenin.presentation.toDisplay
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +19,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel untuk Layar Detail Job (FE-13).
+ * ViewModel untuk Layar Detail Job (FE-13 & FE-14).
  *
- * Mengelola pemuatan detail data job, pembukaan Maps, dan dialog konfirmasi hapus.
+ * Mengelola pemuatan detail data job, pembukaan Maps, dialog konfirmasi hapus,
+ * serta aksi pelunasan instan ("Tandai Lunas") dan perubahan total pembayaran ("Ubah Pembayaran").
  */
 class JobDetailViewModel(
     private val jobGateway: JobGateway,
@@ -47,12 +50,15 @@ class JobDetailViewModel(
                             job = null,
                             jobDisplay = null,
                             isJobNotFound = true,
+                            isMarkPaidVisible = false,
                             userMessage = "Job tidak ditemukan",
                         )
                     }
                 } else {
                     val isLinkValid = isSharelocValid(job.shareloc)
                     val isVisible = isLinkValid && !brokenLinks.contains(job.shareloc.trim())
+                    val markPaidVisible = PaymentValidator.isMarkPaidVisible(job.fee, job.dibayar)
+
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -60,6 +66,7 @@ class JobDetailViewModel(
                             jobDisplay = job.toDisplay(),
                             isJobNotFound = false,
                             isMapsButtonVisible = isVisible,
+                            isMarkPaidVisible = markPaidVisible,
                         )
                     }
                 }
@@ -103,6 +110,105 @@ class JobDetailViewModel(
             }
         }
     }
+
+    // ── Payment Actions (FE-14) ────────────────────────────────────────────────
+
+    fun onMarkPaidClick() {
+        if (_uiState.value.isUpdatingPayment) return
+        val job = _uiState.value.job ?: return
+        if (job.fee <= 0L || job.dibayar >= job.fee) return
+
+        viewModelScope.launch(dispatcher) {
+            _uiState.update { it.copy(isUpdatingPayment = true) }
+            val result = jobGateway.updatePayment(jobId, job.fee)
+            _uiState.update { it.copy(isUpdatingPayment = false) }
+
+            when (result) {
+                is PaymentUpdateResult.Success -> {
+                    // Data reaktif terupdate via observeJob
+                }
+                is PaymentUpdateResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            userMessage = result.message.ifBlank { "Gagal memperbarui pembayaran" },
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun onEditPaymentClick() {
+        val job = _uiState.value.job ?: return
+        _uiState.update {
+            it.copy(
+                showPaymentDialog = true,
+                paymentDraftText = job.dibayar.toString(),
+                paymentDraftErrorResId = null,
+            )
+        }
+    }
+
+    fun onPaymentDraftChange(newValue: String) {
+        val job = _uiState.value.job ?: return
+        val error = PaymentValidator.validateDibayarText(newValue, job.fee)
+        _uiState.update {
+            it.copy(
+                paymentDraftText = newValue,
+                paymentDraftErrorResId = error?.messageResId,
+            )
+        }
+    }
+
+    fun onPaymentDialogDismiss() {
+        _uiState.update {
+            it.copy(
+                showPaymentDialog = false,
+                paymentDraftText = "",
+                paymentDraftErrorResId = null,
+            )
+        }
+    }
+
+    fun onPaymentDialogConfirm() {
+        if (_uiState.value.isUpdatingPayment) return
+        val job = _uiState.value.job ?: return
+
+        val error = PaymentValidator.validateDibayarText(_uiState.value.paymentDraftText, job.fee)
+        if (error != null) {
+            _uiState.update { it.copy(paymentDraftErrorResId = error.messageResId) }
+            return
+        }
+
+        val newDibayar = PaymentValidator.parseDibayar(_uiState.value.paymentDraftText) ?: 0L
+
+        viewModelScope.launch(dispatcher) {
+            _uiState.update { it.copy(isUpdatingPayment = true) }
+            val result = jobGateway.updatePayment(jobId, newDibayar)
+            _uiState.update { it.copy(isUpdatingPayment = false) }
+
+            when (result) {
+                is PaymentUpdateResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            showPaymentDialog = false,
+                            paymentDraftText = "",
+                            paymentDraftErrorResId = null,
+                        )
+                    }
+                }
+                is PaymentUpdateResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            userMessage = result.message.ifBlank { "Gagal memperbarui pembayaran" },
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // ── Delete Actions (FE-13) ─────────────────────────────────────────────────
 
     fun onDeleteClick() {
         _uiState.update { it.copy(showDeleteDialog = true) }

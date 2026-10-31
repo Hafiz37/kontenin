@@ -194,9 +194,7 @@ object JobFormValidator {
      * Kosong diartikan 0L. Mengembalikan null jika overflow.
      */
     fun parseDibayar(dibayarText: String): Long? {
-        val clean = dibayarText.filter { it.isDigit() }
-        if (clean.isEmpty()) return 0L
-        return clean.toLongOrNull()
+        return com.example.kontenin.presentation.PaymentValidator.parseDibayar(dibayarText)
     }
 
     /**
@@ -205,24 +203,16 @@ object JobFormValidator {
      * Tangani overflow dan pastikan tidak melebihi fee.
      */
     fun validateDibayar(dibayarText: String, feeText: String): FormValidationError? {
-        val trimmed = dibayarText.trim()
-        if (trimmed.isEmpty()) return null
-        if (trimmed.startsWith('-')) return FormValidationError.DibayarExceedsFee
-
-        val digits = trimmed.filter { it.isDigit() }
-        if (digits.isEmpty()) return null
-
-        val paidValue = digits.toLongOrNull() ?: return FormValidationError.DibayarOverflow
-        if (paidValue < 0L) return FormValidationError.DibayarExceedsFee
-
-        // Periksa terhadap fee yang ada
         val feeDigits = feeText.trim().filter { it.isDigit() }
-        val feeValue = feeDigits.toLongOrNull()
-        if (feeValue != null && paidValue > feeValue) {
-            return FormValidationError.DibayarExceedsFee
-        }
+        val feeValue = feeDigits.toLongOrNull() ?: Long.MAX_VALUE
 
-        return null
+        val error = com.example.kontenin.presentation.PaymentValidator.validateDibayarText(dibayarText, feeValue)
+        return when (error) {
+            is com.example.kontenin.presentation.PaymentValidationError.Overflow -> FormValidationError.DibayarOverflow
+            is com.example.kontenin.presentation.PaymentValidationError.ExceedsFee,
+            is com.example.kontenin.presentation.PaymentValidationError.Negative -> FormValidationError.DibayarExceedsFee
+            null -> null
+        }
     }
 
     /**
