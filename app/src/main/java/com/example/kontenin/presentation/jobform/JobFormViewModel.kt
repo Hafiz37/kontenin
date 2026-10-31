@@ -493,6 +493,7 @@ class JobFormViewModel(
     }
 
     fun onSaveClick() {
+        if (_uiState.value.isLoading) return
         val state = _uiState.value
 
         // Normalisasi acara dan sumber job sebelum simpan (FE-10)
@@ -577,6 +578,7 @@ class JobFormViewModel(
     }
 
     fun onConflictDismiss() {
+        if (_uiState.value.isLoading) return
         updateState {
             copy(
                 showConflictDialog = false,
@@ -586,6 +588,7 @@ class JobFormViewModel(
     }
 
     fun onConflictForceSave() {
+        if (_uiState.value.isLoading) return
         updateState {
             copy(
                 showConflictDialog = false,

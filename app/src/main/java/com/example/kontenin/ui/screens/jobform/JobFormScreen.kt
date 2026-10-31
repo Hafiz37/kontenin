@@ -229,6 +229,7 @@ fun JobFormScreen(
                     text     = stringResource(R.string.action_save),
                     onClick  = viewModel::onSaveClick,
                     enabled  = !uiState.isLoading,
+                    loading  = uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
