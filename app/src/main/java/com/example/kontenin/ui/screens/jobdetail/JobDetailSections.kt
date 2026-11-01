@@ -20,8 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kontenin.R
@@ -32,9 +35,10 @@ import com.example.kontenin.ui.theme.KonteninRadius
 import com.example.kontenin.ui.theme.KonteninTheme
 
 /**
- * Seksi-seksi tampilan data pada Layar Detail Job (FE-13 / DESIGN §6.3).
+ * Seksi-seksi tampilan data pada Layar Detail Job (FE-13, FE-18 / DESIGN §6.3, §8.4, §8.5).
  *
  * Menampilkan seluruh data pengguna tanpa mengekspos identitas teknis (ID / timestamps).
+ * Diperbarui untuk mendukung aksesibilitas TalkBack, font 200%, dan layar kecil (360 dp).
  */
 @Composable
 fun JobDetailHeader(
@@ -78,7 +82,9 @@ fun JobDetailTimeCard(
     }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {},
         shape = RoundedCornerShape(KonteninRadius.lg),
         colors = CardDefaults.cardColors(
             containerColor = colors.primaryContainer,
@@ -140,6 +146,7 @@ fun JobDetailLocationSection(
             FilledTonalButton(
                 onClick = onOpenMaps,
                 shape = RoundedCornerShape(KonteninRadius.md),
+                modifier = Modifier.height(KonteninTheme.dimensions.minTouchTarget),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Place,
@@ -167,6 +174,8 @@ fun JobDetailPaymentSection(
 ) {
     val colors = KonteninTheme.colorScheme
     val spacing = KonteninTheme.spacing
+    val configuration = LocalConfiguration.current
+    val shouldStackButtons = configuration.fontScale > 1.2f
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -200,33 +209,73 @@ fun JobDetailPaymentSection(
         Spacer(modifier = Modifier.height(spacing.space3))
 
         // Aksi Pembayaran: Tandai Lunas (hanya bila belum lunas & fee > 0) dan Ubah Pembayaran
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.space2),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (isMarkPaidVisible) {
-                FilledTonalButton(
-                    onClick = onMarkPaid,
+        // Adaptif: tersusun vertikal jika fontScale > 1.2f untuk mencegah teks terpotong (DESIGN §8.4)
+        if (shouldStackButtons) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(spacing.space2),
+            ) {
+                if (isMarkPaidVisible) {
+                    FilledTonalButton(
+                        onClick = onMarkPaid,
+                        enabled = !isUpdatingPayment,
+                        shape = RoundedCornerShape(KonteninRadius.md),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(KonteninTheme.dimensions.minTouchTarget),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_mark_paid),
+                            style = KonteninTheme.typography.labelLarge,
+                        )
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = onEditPayment,
                     enabled = !isUpdatingPayment,
                     shape = RoundedCornerShape(KonteninRadius.md),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(KonteninTheme.dimensions.minTouchTarget),
                 ) {
                     Text(
-                        text = stringResource(R.string.action_mark_paid),
+                        text = stringResource(R.string.action_edit_payment),
                         style = KonteninTheme.typography.labelLarge,
                     )
                 }
             }
-
-            OutlinedButton(
-                onClick = onEditPayment,
-                enabled = !isUpdatingPayment,
-                shape = RoundedCornerShape(KonteninRadius.md),
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(spacing.space2),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = stringResource(R.string.action_edit_payment),
-                    style = KonteninTheme.typography.labelLarge,
-                )
+                if (isMarkPaidVisible) {
+                    FilledTonalButton(
+                        onClick = onMarkPaid,
+                        enabled = !isUpdatingPayment,
+                        shape = RoundedCornerShape(KonteninRadius.md),
+                        modifier = Modifier.height(KonteninTheme.dimensions.minTouchTarget),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.action_mark_paid),
+                            style = KonteninTheme.typography.labelLarge,
+                        )
+                    }
+                }
+
+                OutlinedButton(
+                    onClick = onEditPayment,
+                    enabled = !isUpdatingPayment,
+                    shape = RoundedCornerShape(KonteninRadius.md),
+                    modifier = Modifier.height(KonteninTheme.dimensions.minTouchTarget),
+                ) {
+                    Text(
+                        text = stringResource(R.string.action_edit_payment),
+                        style = KonteninTheme.typography.labelLarge,
+                    )
+                }
             }
         }
     }
@@ -250,6 +299,7 @@ private fun PaymentRow(
             text = label,
             style = KonteninTheme.typography.bodyMedium,
             color = colors.onSurfaceVariant,
+            modifier = Modifier.weight(1f, fill = false),
         )
         Text(
             text = value,

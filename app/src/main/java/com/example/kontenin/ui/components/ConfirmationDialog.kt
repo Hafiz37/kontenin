@@ -1,5 +1,6 @@
 package com.example.kontenin.ui.components
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,8 +15,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -51,6 +56,14 @@ fun ConfirmationDialog(
     val customTypography = KonteninTheme.customTypography
     val configuration = LocalConfiguration.current
     val scrollState = rememberScrollState()
+    val titleFocusRequester = remember { FocusRequester() }
+
+    // DESIGN §8.5: Dialog memindahkan fokus ke judul saat dibuka
+    LaunchedEffect(Unit) {
+        try {
+            titleFocusRequester.requestFocus()
+        } catch (_: Exception) {}
+    }
 
     // Cek apakah tombol harus tersusun vertikal (label panjang atau font scale tinggi)
     val shouldStack = stackButtonsVertically ||
@@ -87,7 +100,10 @@ fun ConfirmationDialog(
                     text = title,
                     style = customTypography.sectionHeading,
                     color = colors.onSurface,
-                    modifier = Modifier.semantics { heading() }
+                    modifier = Modifier
+                        .focusRequester(titleFocusRequester)
+                        .focusable()
+                        .semantics { heading() }
                 )
 
                 // Isi Pesan Dialog (16 sp, Regular 400)

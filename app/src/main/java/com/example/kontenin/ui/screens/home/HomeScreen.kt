@@ -45,7 +45,7 @@ import com.example.kontenin.presentation.home.HomeViewModel
 import com.example.kontenin.ui.components.EmptyState
 import com.example.kontenin.ui.components.JobCard
 import com.example.kontenin.ui.components.KonteninTonalButton
-import com.example.kontenin.ui.components.LoadingStateScreen
+import com.example.kontenin.ui.components.SkeletonJobList
 import com.example.kontenin.ui.theme.KonteninTheme
 
 /**
@@ -184,8 +184,12 @@ fun HomeScreen(
             // Content: Loading, Error, Empty, atau List
             when {
                 uiState.isLoading -> {
-                    LoadingStateScreen(
-                        modifier = Modifier.fillMaxSize()
+                    // DESIGN §7.2: Tampilkan 3 kartu kerangka (skeleton) statis tanpa animasi berkedip
+                    SkeletonJobList(
+                        count = 3,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = spacing.space4, vertical = spacing.space2)
                     )
                 }
                 
@@ -194,6 +198,8 @@ fun HomeScreen(
                         icon = Icons.Filled.EventBusy,
                         title = stringResource(R.string.error_load_jobs),
                         description = uiState.error,
+                        actionLabel = stringResource(R.string.action_retry),
+                        onActionClick = { viewModel.refreshCategories() },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

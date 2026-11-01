@@ -37,6 +37,7 @@ import com.example.kontenin.R
 import com.example.kontenin.presentation.recap.RecapPeriod
 import com.example.kontenin.presentation.recap.RecapViewModel
 import com.example.kontenin.ui.components.JobCardCompact
+import com.example.kontenin.ui.components.SkeletonJobList
 import com.example.kontenin.ui.theme.KonteninTheme
 
 /**
@@ -118,12 +119,13 @@ fun RecapScreen(
             Spacer(modifier = Modifier.height(spacing.space3))
 
             if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+                // DESIGN §7.2: Tampilkan 3 kartu kerangka (skeleton) statis tanpa animasi berkedip
+                SkeletonJobList(
+                    count = 3,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = spacing.space4, vertical = spacing.space2)
+                )
             } else {
                 // ── Daftar Lazy Utama (Single Lazy Column) ────────────────────
                 LazyColumn(

@@ -1,5 +1,6 @@
 package com.example.kontenin.ui.screens.jobdetail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,11 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -37,10 +40,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.example.kontenin.R
 import com.example.kontenin.presentation.jobdetail.JobDetailViewModel
+import com.example.kontenin.ui.theme.KonteninRadius
 import com.example.kontenin.ui.theme.KonteninTheme
 
 /**
@@ -199,7 +208,7 @@ fun JobDetailScreen(
                     Spacer(modifier = Modifier.height(spacing.space5))
                 }
 
-                // ── Bottom Action Bar (DESIGN §5.2) ───────────────────────────
+                // ── Bottom Action Bar (DESIGN §5.2, §8.4) ─────────────────────────
                 HorizontalDivider()
                 Surface(
                     color = colors.surface,
@@ -209,8 +218,8 @@ fun JobDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .navigationBarsPadding()
-                            .height(dim.bottomActionBarHeight)
-                            .padding(horizontal = spacing.space4),
+                            .heightIn(min = dim.bottomActionBarHeight)
+                            .padding(horizontal = spacing.space4, vertical = spacing.space2),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -251,10 +260,10 @@ fun JobDetailScreen(
 
 @Composable
 private fun ActionBarButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     contentDescription: String,
-    iconTint: androidx.compose.ui.graphics.Color,
+    iconTint: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -263,20 +272,24 @@ private fun ActionBarButton(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = modifier,
-    ) {
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier.size(KonteninTheme.dimensions.minTouchTarget),
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = iconTint,
-                modifier = Modifier.size(24.dp),
+        modifier = modifier
+            .clip(RoundedCornerShape(KonteninRadius.md))
+            .clickable(
+                onClick = onClick,
+                role = Role.Button,
+                onClickLabel = contentDescription
             )
-        }
-        Spacer(modifier = Modifier.width(spacing.space1))
+            .heightIn(min = KonteninTheme.dimensions.minTouchTarget)
+            .padding(horizontal = spacing.space2, vertical = spacing.space1)
+            .semantics(mergeDescendants = true) {},
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(modifier = Modifier.height(spacing.space1))
         Text(
             text = label,
             style = KonteninTheme.typography.labelSmall,

@@ -79,6 +79,7 @@ fun RecapSummaryCard(
                     text = stringResource(R.string.recap_total_remaining),
                     style = KonteninTheme.typography.titleMedium,
                     color = colors.onPrimaryContainer,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 Text(
                     text = KonteninRupiahFormatter.formatRupiah(summary.totalSisa),
@@ -87,6 +88,7 @@ fun RecapSummaryCard(
                         fontWeight = FontWeight.Bold,
                     ),
                     color = colors.onPrimaryContainer,
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
         }
@@ -110,11 +112,13 @@ private fun SummaryRow(
             text = label,
             style = KonteninTheme.typography.bodyMedium,
             color = colors.onPrimaryContainer.copy(alpha = 0.85f),
+            modifier = Modifier.weight(1f, fill = false),
         )
         Text(
             text = value,
             style = KonteninTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
             color = colors.onPrimaryContainer,
+            modifier = Modifier.padding(start = 8.dp),
         )
     }
 }

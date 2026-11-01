@@ -64,7 +64,22 @@ data class JobDisplay(
     val paymentChipText: String?,          // "Belum lunas" atau "Kurang Rp 1.000.000" atau null
     val isLunas: Boolean,                  // dibayar >= fee
     val hasShareloc: Boolean               // shareloc tidak kosong
-)
+) {
+    /**
+     * Deskripsi lengkap untuk pembaca layar (TalkBack - DESIGN §8.5):
+     * "[tanggal], [jam], [nama], [acara], [sumber], fee [nominal] rupiah, [status bayar]"
+     */
+    val talkBackDescription: String
+        get() {
+            val paymentDesc = when (paymentStatus) {
+                PaymentStatus.PAID -> "Lunas"
+                PaymentStatus.UNPAID -> "Belum lunas"
+                PaymentStatus.PARTIAL -> "Kurang $sisaFormatted"
+                PaymentStatus.NO_FEE -> "Fee 0 rupiah"
+            }
+            return "$dateAndTimeFormatted, $namaPasangan, $acara, $sumberJob, fee $feeFormatted, $paymentDesc"
+        }
+}
 
 /**
  * Extension function untuk mapping Job → JobDisplay.
