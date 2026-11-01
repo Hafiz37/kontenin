@@ -287,4 +287,26 @@
     <string name="demo_simulate_notification">Simulasikan Ketuk Notifikasi</string>
     <string name="demo_job_id_label">ID Job</string>
     <string name="app_version_default">0.1</string>
+
+    <!-- Backup, Export & Import Simulation (FE-17) -->
+    <string name="backup_processing">Memproses...</string>
+    <string name="backup_export_title">Ekspor Data</string>
+    <string name="backup_export_desc">Tindakan ini akan mensimulasikan penyimpanan seluruh catatan job sebagai file cadangan (tanpa membuat file fisik asli di penyimpanan).</string>
+    <string name="backup_export_destination_normal">Simpan ke Unduhan (Simulasi Sukses)</string>
+    <string name="backup_export_destination_fail">Simulasikan Gagal Ekspor / Memori Penuh (EC-18)</string>
+    <string name="backup_export_success">Data berhasil diekspor (simulasi demo: %1$s, %2$d job)</string>
+    <string name="backup_export_failed">Gagal mengekspor data</string>
+    <string name="backup_import_chooser_title">Pilih File Cadangan (Simulasi)</string>
+    <string name="backup_import_chooser_desc">Pilih fixture cadangan untuk menguji validasi dan alur impor:</string>
+    <string name="backup_import_confirm_title">Konfirmasi Impor Data</string>
+    <string name="backup_import_confirm_message">Semua data saat ini akan diganti dengan isi file (%d job).</string>
+    <string name="backup_import_invalid">File cadangan tidak valid</string>
+    <string name="backup_import_success">Impor berhasil: %d job</string>
+    <string name="backup_import_failed">Gagal mengimpor data</string>
+    <string name="action_replace_data">Ganti Data</string>
+    <string name="demo_backup_section_title">Simulasi Cepat Cadangan Data (FE-17):</string>
+    <string name="demo_backup_valid_btn">Impor 3 Job (Valid)</string>
+    <string name="demo_backup_invalid_btn">Impor File Rusak</string>
+    <string name="demo_backup_fail_btn">Impor Gagal Transaksi</string>
+    <string name="demo_backup_export_btn">Ekspor Demo</string>
 </resources>

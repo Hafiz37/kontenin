@@ -44,6 +44,17 @@ class DemoJobGateway(
     fun releasePendingOperation() {
         pendingOperationReleased = true
     }
+
+    /**
+     * Mengganti seluruh koleksi demo secara atomik saat impor cadangan berhasil (FE-17).
+     */
+    fun replaceAllJobs(newJobs: List<Job>) {
+        jobs.value = newJobs.associateBy { it.id }
+        nextId = (newJobs.maxOfOrNull { it.id } ?: 0L) + 1
+        pendingOperationReleased = false
+    }
+
+    fun getCurrentJobs(): List<Job> = jobs.value.values.toList()
     
     override fun observeAllJobs(): Flow<List<Job>> =
         jobs.map { it.values.sortedByDescending { job -> job.tanggal } }

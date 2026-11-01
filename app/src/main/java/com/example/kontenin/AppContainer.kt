@@ -20,7 +20,7 @@ class AppContainer(
 ) {
     val jobGateway: DemoJobGateway = DemoJobGateway(clock, initialScenario)
     val reminderGateway: ReminderGateway = DemoReminderGateway(initialScenario)
-    val backupGateway: BackupGateway = DemoBackupGateway(jobGateway, initialScenario)
+    val backupGateway: DemoBackupGateway = DemoBackupGateway(jobGateway, initialScenario, clock)
     val externalActionGateway: ExternalActionGateway = DemoExternalActionGateway(initialScenario)
     
     fun resetToSeed() {
@@ -29,6 +29,7 @@ class AppContainer(
     
     fun setScenario(scenario: DemoScenario) {
         jobGateway.setScenario(scenario)
+        backupGateway.scenario = scenario
         if (externalActionGateway is DemoExternalActionGateway) {
             externalActionGateway.scenario = scenario
         }
@@ -75,11 +76,13 @@ class AppContainer(
         )
     }
 
-    // FE-16: SettingsViewModel factory
+    // FE-16, FE-17: SettingsViewModel factory
     fun createSettingsViewModel(): com.example.kontenin.presentation.settings.SettingsViewModel {
         return com.example.kontenin.presentation.settings.SettingsViewModel(
             reminderGateway = reminderGateway,
-            externalActionGateway = externalActionGateway
+            externalActionGateway = externalActionGateway,
+            backupGateway = backupGateway,
+            clock = clock
         )
     }
 }

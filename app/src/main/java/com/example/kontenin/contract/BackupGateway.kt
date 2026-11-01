@@ -3,6 +3,7 @@ package com.example.kontenin.contract
 sealed interface ExportResult {
     data class Success(val path: String, val jobCount: Int) : ExportResult
     data class Error(val message: String) : ExportResult
+    data object Cancelled : ExportResult
 }
 
 sealed interface ImportValidationResult {
@@ -16,7 +17,7 @@ sealed interface ImportResult {
 }
 
 interface BackupGateway {
-    suspend fun exportToJson(): ExportResult
+    suspend fun exportToJson(destinationPath: String? = null): ExportResult
     suspend fun validateImport(filePath: String): ImportValidationResult
     suspend fun confirmImport(filePath: String): ImportResult
 }

@@ -1,12 +1,12 @@
 package com.example.kontenin.ui.debug
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,11 +24,12 @@ import com.example.kontenin.ui.theme.KonteninRadius
 import com.example.kontenin.ui.theme.KonteninTheme
 
 /**
- * Panel Kontrol Demo & Pengujian (FE-16).
+ * Panel Kontrol Demo & Pengujian (FE-16, FE-17).
  *
  * Memfasilitasi pengujian manual dan simulasi:
  * 1. Pemicu tap notifikasi simulasi berdasarkan ID Job (valid vs dihapus).
  * 2. Toggle simulasi izin notifikasi & alarm tepat waktu.
+ * 3. Pemicu simulasi cepat alur cadangan: impor 3 job, file rusak, rollback gagal, dan ekspor.
  */
 @Composable
 fun DemoControls(
@@ -38,6 +39,12 @@ fun DemoControls(
     onToggleNotificationPermission: () -> Unit,
     onToggleExactAlarmPermission: () -> Unit,
     modifier: Modifier = Modifier,
+    onSimulateImportValid: (() -> Unit)? = null,
+    onSimulateImportInvalid: (() -> Unit)? = null,
+    onSimulateImportFailProcess: (() -> Unit)? = null,
+    onSimulateExportSuccess: (() -> Unit)? = null,
+    onSimulateExportFail: (() -> Unit)? = null,
+    isBackupBusy: Boolean = false,
 ) {
     val colors = KonteninTheme.colorScheme
     val spacing = KonteninTheme.spacing
@@ -138,6 +145,76 @@ fun DemoControls(
                     modifier = Modifier.weight(1f),
                     minHeight = KonteninTheme.dimensions.minTouchTarget
                 )
+            }
+
+            // Seksi Pengujian Cadangan Data (FE-17)
+            if (onSimulateImportValid != null || onSimulateExportSuccess != null) {
+                HorizontalDivider()
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.space2)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Storage,
+                        contentDescription = null,
+                        tint = colors.primary
+                    )
+                    Text(
+                        text = stringResource(R.string.demo_backup_section_title),
+                        style = KonteninTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.onSurface
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(spacing.space2)
+                ) {
+                    onSimulateImportValid?.let {
+                        KonteninOutlinedButton(
+                            text = stringResource(R.string.demo_backup_valid_btn),
+                            onClick = it,
+                            enabled = !isBackupBusy,
+                            modifier = Modifier.weight(1f),
+                            minHeight = KonteninTheme.dimensions.minTouchTarget
+                        )
+                    }
+                    onSimulateImportInvalid?.let {
+                        KonteninOutlinedButton(
+                            text = stringResource(R.string.demo_backup_invalid_btn),
+                            onClick = it,
+                            enabled = !isBackupBusy,
+                            modifier = Modifier.weight(1f),
+                            minHeight = KonteninTheme.dimensions.minTouchTarget
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(spacing.space2)
+                ) {
+                    onSimulateImportFailProcess?.let {
+                        KonteninOutlinedButton(
+                            text = stringResource(R.string.demo_backup_fail_btn),
+                            onClick = it,
+                            enabled = !isBackupBusy,
+                            modifier = Modifier.weight(1f),
+                            minHeight = KonteninTheme.dimensions.minTouchTarget
+                        )
+                    }
+                    onSimulateExportSuccess?.let {
+                        KonteninOutlinedButton(
+                            text = stringResource(R.string.demo_backup_export_btn),
+                            onClick = it,
+                            enabled = !isBackupBusy,
+                            modifier = Modifier.weight(1f),
+                            minHeight = KonteninTheme.dimensions.minTouchTarget
+                        )
+                    }
+                }
             }
         }
     }
