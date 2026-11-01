@@ -35,6 +35,7 @@ class JobDetailViewModel(
     val uiState: StateFlow<JobDetailUiState> = _uiState.asStateFlow()
 
     private val brokenLinks = mutableSetOf<String>()
+    private var lastPaymentAction: (() -> Unit)? = null
 
     init {
         observeJob()
@@ -125,12 +126,15 @@ class JobDetailViewModel(
 
             when (result) {
                 is PaymentUpdateResult.Success -> {
+                    lastPaymentAction = null
                     // Data reaktif terupdate via observeJob
                 }
                 is PaymentUpdateResult.Error -> {
+                    lastPaymentAction = { onMarkPaidClick() }
                     _uiState.update {
                         it.copy(
                             userMessage = result.message.ifBlank { "Gagal memperbarui pembayaran" },
+                            snackbarActionLabel = "Coba lagi",
                         )
                     }
                 }
@@ -189,6 +193,7 @@ class JobDetailViewModel(
 
             when (result) {
                 is PaymentUpdateResult.Success -> {
+                    lastPaymentAction = null
                     _uiState.update {
                         it.copy(
                             showPaymentDialog = false,
@@ -198,9 +203,11 @@ class JobDetailViewModel(
                     }
                 }
                 is PaymentUpdateResult.Error -> {
+                    lastPaymentAction = { onPaymentDialogConfirm() }
                     _uiState.update {
                         it.copy(
                             userMessage = result.message.ifBlank { "Gagal memperbarui pembayaran" },
+                            snackbarActionLabel = "Coba lagi",
                         )
                     }
                 }
@@ -240,7 +247,11 @@ class JobDetailViewModel(
         }
     }
 
+    fun retryLastAction() {
+        lastPaymentAction?.invoke()
+    }
+
     fun onUserMessageConsumed() {
-        _uiState.update { it.copy(userMessage = null) }
+        _uiState.update { it.copy(userMessage = null, snackbarActionLabel = null) }
     }
 }

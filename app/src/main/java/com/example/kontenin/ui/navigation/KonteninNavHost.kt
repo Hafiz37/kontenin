@@ -3,7 +3,10 @@ package com.example.kontenin.ui.navigation
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -15,6 +18,8 @@ import com.example.kontenin.ui.screens.jobdetail.JobDetailScreen
 import com.example.kontenin.ui.screens.jobform.JobFormScreen
 import com.example.kontenin.ui.screens.recap.RecapScreen
 import com.example.kontenin.ui.screens.settings.SettingsScreen
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 
 /**
  * NavHost Kontenin — mendaftarkan seluruh destinasi dan memetakan
@@ -34,6 +39,9 @@ fun KonteninNavHost(
     modifier: Modifier = Modifier,
     appContainer: AppContainer,
 ) {
+    val jobNotFoundMsg = stringResource(com.example.kontenin.R.string.err_job_not_found)
+    val remindersSkippedMsg = stringResource(com.example.kontenin.R.string.snackbar_reminders_skipped)
+
     NavHost(
         navController = navController,
         startDestination = Routes.Home.route,
@@ -105,7 +113,7 @@ fun KonteninNavHost(
                                 restoreState = true
                             }
                             snackbarHostState.showSnackbar(
-                                message = context.getString(com.example.kontenin.R.string.err_job_not_found),
+                                message = jobNotFoundMsg,
                                 duration = androidx.compose.material3.SnackbarDuration.Short
                             )
                         }
@@ -140,6 +148,15 @@ fun KonteninNavHost(
                 },
                 onNavigateToDuplicate = { id ->
                     navController.navigate(Routes.JobForm.createRoute(Routes.MODE_DUPLICATE, id))
+                },
+                onNavigateToHome = {
+                    navController.navigate(Routes.Home.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 },
             )
         }
@@ -182,7 +199,7 @@ fun KonteninNavHost(
                     if (hasSkippedReminders) {
                         coroutineScope.launch {
                             snackbarHostState.showSnackbar(
-                                message = context.getString(com.example.kontenin.R.string.snackbar_reminders_skipped),
+                                message = remindersSkippedMsg,
                                 duration = androidx.compose.material3.SnackbarDuration.Short
                             )
                         }

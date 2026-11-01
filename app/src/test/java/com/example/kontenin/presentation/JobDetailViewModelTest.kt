@@ -550,15 +550,16 @@ class JobDetailViewModelTest {
         viewModel.onPaymentDraftChange("1000000")
         viewModel.onPaymentDialogConfirm()
 
-        // State harus menampilkan pesan error dan angka lama tetap
+        // State harus menampilkan pesan error dan angka lama tetap, serta action Coba lagi
         assertEquals("Simulasi gagal update pembayaran", viewModel.uiState.value.userMessage)
+        assertEquals("Coba lagi", viewModel.uiState.value.snackbarActionLabel)
         assertEquals(500_000L, viewModel.uiState.value.job?.dibayar)
 
         // Reset skenario ke SUCCESS untuk retry
         jobGateway.setScenario(DemoScenario.SUCCESS, resetData = false)
 
-        // Retry operasi simpan pembayaran
-        viewModel.onPaymentDialogConfirm()
+        // Retry operasi simpan pembayaran via retryLastAction
+        viewModel.retryLastAction()
 
         assertEquals(1_000_000L, viewModel.uiState.value.job?.dibayar)
         assertEquals("Rp 1.000.000", viewModel.uiState.value.jobDisplay?.dibayarFormatted)

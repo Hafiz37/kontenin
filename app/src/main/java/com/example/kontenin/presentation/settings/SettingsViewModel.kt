@@ -85,7 +85,7 @@ class SettingsViewModel(
             val result = reminderGateway.testReminder()
             val message = when (result) {
                 is TestReminderResult.Scheduled, is TestReminderResult.Success -> {
-                    "Notifikasi uji dijadwalkan (simulasi demo, tanpa alarm OS)."
+                    "Notifikasi uji dijadwalkan (simulasi demo, tanpa alarm OS). Notifikasi uji akan muncul beberapa detik lagi."
                 }
                 is TestReminderResult.PermissionDenied -> {
                     "Izin notifikasi belum diberikan. Pengingat tidak dapat dijadwalkan."

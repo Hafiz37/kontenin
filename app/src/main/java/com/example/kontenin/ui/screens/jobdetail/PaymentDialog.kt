@@ -90,7 +90,7 @@ fun PaymentDialog(
 
                 // Keterangan Total Fee
                 Text(
-                    text = "Total Fee: ${KonteninRupiahFormatter.formatRupiah(currentFee)}",
+                    text = stringResource(R.string.payment_dialog_total_fee, KonteninRupiahFormatter.formatRupiah(currentFee)),
                     style = typography.bodyMedium,
                     color = colors.onSurfaceVariant,
                 )

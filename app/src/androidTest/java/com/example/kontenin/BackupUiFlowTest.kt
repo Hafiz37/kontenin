@@ -10,7 +10,14 @@ import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
 
-/** Acceptance gate: a placeholder label must not count as an import action. */
+/**
+ * Backup UI Flow Test (FE-19).
+ *
+ * Menguji aksi dan dialog ekspor serta impor data cadangan simulasi di Pengaturan:
+ * 1. Tombol Impor Data dan Ekspor Data ada dan interaktif
+ * 2. Ketuk Ekspor membuka dialog pilihan tujuan ekspor
+ * 3. Ketuk Impor membuka pemilih berkas cadangan demo
+ */
 class BackupUiFlowTest {
     @get:Rule val compose = createComposeRule()
 
@@ -22,5 +29,19 @@ class BackupUiFlowTest {
     @Test fun settingsExposesActionableImport() {
         compose.onNode(hasText("Pengaturan") and isSelectable()).performClick()
         compose.onNodeWithText("Impor Data", ignoreCase = true).assertHasClickAction()
+    }
+
+    @Test fun exportButtonOpensDestinationDialog() {
+        compose.onNode(hasText("Pengaturan") and isSelectable()).performClick()
+        compose.onNodeWithText("Ekspor Data", ignoreCase = true).performClick()
+        compose.onNodeWithText("Ekspor Cadangan").assertIsDisplayed()
+        compose.onNodeWithText("Batal").performClick()
+    }
+
+    @Test fun importButtonOpensFixtureChooserDialog() {
+        compose.onNode(hasText("Pengaturan") and isSelectable()).performClick()
+        compose.onNodeWithText("Impor Data", ignoreCase = true).performClick()
+        compose.onNodeWithText("Pilih Data Cadangan").assertIsDisplayed()
+        compose.onNodeWithText("Batal").performClick()
     }
 }

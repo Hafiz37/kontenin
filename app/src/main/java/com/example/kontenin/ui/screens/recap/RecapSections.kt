@@ -83,10 +83,7 @@ fun RecapSummaryCard(
                 )
                 Text(
                     text = KonteninRupiahFormatter.formatRupiah(summary.totalSisa),
-                    style = KonteninTheme.typography.headlineMedium.copy(
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style = KonteninTheme.customTypography.largeNumber,
                     color = colors.onPrimaryContainer,
                     modifier = Modifier.padding(start = 8.dp),
                 )
@@ -116,7 +113,7 @@ private fun SummaryRow(
         )
         Text(
             text = value,
-            style = KonteninTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+            style = KonteninTheme.customTypography.nominal,
             color = colors.onPrimaryContainer,
             modifier = Modifier.padding(start = 8.dp),
         )
@@ -186,7 +183,7 @@ private fun SourceRecapRow(
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = KonteninRupiahFormatter.formatRupiah(item.totalFee),
-                style = KonteninTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium),
+                style = KonteninTheme.customTypography.nominal,
                 color = colors.onSurface,
             )
             Text(
@@ -194,7 +191,7 @@ private fun SourceRecapRow(
                     R.string.recap_source_remaining,
                     KonteninRupiahFormatter.formatRupiah(item.totalSisa)
                 ),
-                style = KonteninTheme.typography.bodySmall,
+                style = KonteninTheme.typography.bodySmall.copy(fontFeatureSettings = "tnum"),
                 color = if (item.totalSisa > 0L) colors.error else colors.onSurfaceVariant,
             )
         }

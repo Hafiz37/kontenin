@@ -6,158 +6,137 @@ Dokumentasi kontrak gateway untuk Kontenin. Semua kontrak menggunakan hasil bert
 
 **Tanggung jawab**: Mengelola operasi CRUD job dan pemeriksaan bentrok jadwal.
 
-### observeAllJobs(): Flow<List<Job>>
+### `observeAllJobs(): Flow<List<Job>>`
 - **Return**: Flow yang memancarkan daftar semua job, diurutkan descending berdasarkan tanggal
 - **State ownership**: Gateway memiliki state, observer menerima snapshot
-- **Thread**: Flow dapat dikumpulkan dari thread mana saja
+- **Thread**: Flow dapat dikumpulkan dari thread coroutine mana saja
 
-### observeJob(id: String): Flow<Job?>
+### `observeJob(id: Long): Flow<Job?>`
 - **Parameter**: 
-  - `id`: ID job yang akan diobservasi
+  - `id`: ID job (Long) yang akan diobservasi
 - **Return**: Flow yang memancarkan job atau null jika tidak ditemukan
 - **State ownership**: Gateway memiliki state
 
-### saveJob(draft: JobDraft): JobResult
+### `suspend fun saveJob(draft: JobDraft): JobResult`
 - **Parameter**: 
-  - `draft`: Data job baru (tanpa ID)
+  - `draft`: Data job baru (`JobDraft`)
 - **Return**: 
   - `JobResult.Success(job)`: Job berhasil disimpan dengan ID baru
-  - `JobResult.Error(message)`: Gagal menyimpan (validasi atau sistem)
+  - `JobResult.Error(message)`: Gagal menyimpan
 - **Side effect**: Job baru ditambahkan ke storage, observer menerima update
-- **Validation**: `dateEpochDay` dan `feeRupiah` tidak boleh null
 
-### updateJob(id: String, draft: JobDraft): JobResult
+### `suspend fun updateJob(id: Long, draft: JobDraft): JobResult`
 - **Parameter**: 
-  - `id`: ID job yang akan diubah
-  - `draft`: Data job baru
+  - `id`: ID job (Long) yang akan diubah
+  - `draft`: Data draft job yang diperbarui
 - **Return**: 
   - `JobResult.Success(job)`: Job berhasil diubah
-  - `JobResult.Error(message)`: Gagal (job tidak ada, validasi, atau sistem)
+  - `JobResult.Error(message)`: Gagal
 - **Side effect**: Job diupdate, `updatedAt` berubah, observer menerima update
-- **Preservation**: `createdAt` dan `paidRupiah` (jika tidak diubah) tetap sama
+- **Preservation**: `createdAt` tetap dipertahankan
 
-### deleteJob(id: String): DeleteResult
+### `suspend fun deleteJob(id: Long): DeleteResult`
 - **Parameter**: 
-  - `id`: ID job yang akan dihapus
+  - `id`: ID job (Long) yang akan dihapus
 - **Return**: 
   - `DeleteResult.Success`: Job berhasil dihapus
-  - `DeleteResult.Error(message)`: Gagal (job tidak ada atau sistem)
+  - `DeleteResult.Error(message)`: Gagal
 - **Side effect**: Job dihapus dari storage, observer menerima update
 
-### updatePayment(id: String, paidRupiah: Long): PaymentUpdateResult
+### `suspend fun updatePayment(id: Long, dibayar: Long): PaymentUpdateResult`
 - **Parameter**: 
-  - `id`: ID job
-  - `paidRupiah`: Jumlah rupiah yang sudah dibayar
+  - `id`: ID job (Long)
+  - `dibayar`: Jumlah nominal rupiah yang sudah dibayar (Long)
 - **Return**: 
   - `PaymentUpdateResult.Success(job)`: Pembayaran berhasil diupdate
-  - `PaymentUpdateResult.Error(message)`: Gagal (job tidak ada atau sistem)
-- **Side effect**: Field `paidRupiah` dan `updatedAt` berubah, observer menerima update
+  - `PaymentUpdateResult.Error(message)`: Gagal
+- **Side effect**: Field `dibayar` dan `updatedAt` berubah, observer menerima update
 
-### checkConflict(dateEpochDay: Long, startTimeMinutes: Int, durationMinutes: Int, excludeId: String?): ConflictCheckResult
+### `suspend fun checkConflict(tanggal: Long, jamMulaiMenit: Int, durasiMenit: Int, excludeId: Long?): ConflictCheckResult`
 - **Parameter**: 
-  - `dateEpochDay`: Tanggal job
-  - `startTimeMinutes`: Waktu mulai (menit dari tengah malam)
-  - `durationMinutes`: Durasi
-  - `excludeId`: ID job yang dikecualikan (untuk update job)
+  - `tanggal`: Epoch day
+  - `jamMulaiMenit`: Waktu mulai acara dalam menit dari tengah malam (0..1439)
+  - `durasiMenit`: Durasi dalam menit
+  - `excludeId`: ID job yang dikecualikan (misal saat edit)
 - **Return**: 
-  - `ConflictCheckResult.NoConflict`: Tidak ada bentrok
-  - `ConflictCheckResult.HasConflict(conflictingJobs)`: Ada job yang bentrok
-- **Logic**: Bentrok jika ada job lain di tanggal sama dengan waktu overlapping
+  - `ConflictCheckResult.NoConflict`: Jadwal aman, tidak ada bentrok
+  - `ConflictCheckResult.HasConflict(conflictingJobs)`: Terdapat daftar job yang bentrok
+- **Logic**: Jadwal beririsan jika `max(mulai1, mulai2) < min(selesai1, selesai2)` pada hari yang sama atau rentang jam yang beririsan.
 
 ---
 
 ## ReminderGateway
 
-**Tanggung jawab**: Mengelola izin notifikasi dan pengingat.
+**Tanggung jawab**: Mengelola status izin notifikasi, alarm tepat waktu, serta penjadwalan & pembatalan pengingat acara.
 
-### getPermissionStatus(): PermissionStatus
-- **Return**: 
-  - `PermissionStatus.Granted`: Izin sudah diberikan
-  - `PermissionStatus.Denied`: Izin ditolak
-  - `PermissionStatus.NotRequested`: Belum pernah diminta
-- **Thread**: Suspend function, dapat dipanggil dari coroutine mana saja
+### `suspend fun getNotificationPermissionStatus(): PermissionStatus`
+- **Return**: `Granted`, `Denied`, atau `NotRequested`
 
-### requestPermission(): RequestPermissionResult
-- **Return**: 
-  - `RequestPermissionResult.Granted`: User memberikan izin
-  - `RequestPermissionResult.Denied`: User menolak
-  - `RequestPermissionResult.Cancelled`: User membatalkan dialog
-- **Side effect**: Dialog sistem ditampilkan, status izin berubah
-- **Note**: Di demo, tidak ada UI dialog sistem
+### `suspend fun getExactAlarmPermissionStatus(): PermissionStatus`
+- **Return**: `Granted`, `Denied`, atau `NotRequested`
 
-### testReminder(): TestReminderResult
+### `suspend fun requestNotificationPermission(): RequestPermissionResult`
+- **Return**: `Granted`, `Denied`, atau `Cancelled`
+
+### `suspend fun requestExactAlarmPermission(): RequestPermissionResult`
+- **Return**: `Granted`, `Denied`, atau `Cancelled`
+
+### `suspend fun testReminder(): TestReminderResult`
 - **Return**: 
-  - `TestReminderResult.Success`: Notifikasi uji berhasil dikirim
-  - `TestReminderResult.Error(message)`: Gagal (izin belum diberikan atau sistem)
-- **Side effect**: Notifikasi muncul di status bar (jika izin granted)
+  - `TestReminderResult.Scheduled`: Simulasi pengingat berhasil dijadwalkan
+  - `TestReminderResult.PermissionDenied`: Izin belum aktif
+  - `TestReminderResult.Failed(message)`: Gagal menjadwalkan
+
+### `suspend fun scheduleJobReminders(tanggalEpochDay: Long, jamMulaiMenit: Int): ReminderScheduleResult`
+- **Return**: `ReminderScheduleResult(scheduledCount, skippedCount)`
+- **Aturan**: Menjadwalkan pengingat H-7, H-3, H-1, dan 3 jam sebelum acara. Jadwal yang sudah lewat waktu saat ini di-skip.
+
+### `suspend fun cancelJobReminders(jobId: Long)`
+- **Tanggung jawab**: Membatalkan semua alarm/pengingat yang terdaftar untuk `jobId`.
 
 ---
 
 ## BackupGateway
 
-**Tanggung jawab**: Ekspor dan impor data job dalam format JSON.
+**Tanggung jawab**: Ekspor dan impor data cadangan job (format JSON).
 
-### exportToJson(): ExportResult
+### `suspend fun exportToJson(destinationPath: String? = null): ExportResult`
 - **Return**: 
-  - `ExportResult.Success(path, jobCount)`: File berhasil diekspor
-  - `ExportResult.Error(message)`: Gagal (storage atau sistem)
-- **Side effect**: File JSON dibuat di storage eksternal
-- **Format**: JSON array dari semua job
+  - `ExportResult.Success(path, jobCount)`: File cadangan berhasil dibuat
+  - `ExportResult.Error(message)`: Gagal menyimpan berkas
+  - `ExportResult.Cancelled`: Operasi dibatalkan oleh pengguna
 
-### validateImport(filePath: String): ImportValidationResult
+### `suspend fun validateImport(filePath: String): ImportValidationResult`
 - **Parameter**: 
-  - `filePath`: Path file JSON yang akan diimpor
+  - `filePath`: Jalur berkas / URI berkas cadangan JSON
 - **Return**: 
-  - `ImportValidationResult.Valid(jobCount, preview)`: File valid dengan preview
-  - `ImportValidationResult.Invalid(message)`: File tidak valid (format salah)
-- **Side effect**: Tidak ada (read-only validation)
+  - `ImportValidationResult.Valid(jobCount, preview)`: Berkas valid dengan preview metadata ringkas
+  - `ImportValidationResult.Invalid(message)`: Format rusak, skema tidak cocok, atau data korup
 
-### confirmImport(filePath: String): ImportResult
+### `suspend fun confirmImport(filePath: String): ImportResult`
 - **Parameter**: 
-  - `filePath`: Path file JSON yang akan diimpor
+  - `filePath`: Berkas yang telah divalidasi sebelumnya
 - **Return**: 
-  - `ImportResult.Success(importedCount)`: Job berhasil diimpor
-  - `ImportResult.Error(message)`: Gagal (validasi atau sistem)
-- **Side effect**: Job dari file ditambahkan ke storage, observer menerima update
-- **Note**: Harus dipanggil setelah `validateImport` sukses
+  - `ImportResult.Success(importedCount)`: Data berhasil diganti secara atomik
+  - `ImportResult.Error(message)`: Terjadi kegagalan saat proses penggantian (rollback)
 
 ---
 
 ## ExternalActionGateway
 
-**Tanggung jawab**: Membuka aplikasi eksternal (Maps, Settings).
+**Tanggung jawab**: Integrasi dengan Intent eksternal (Google Maps & Pengaturan Aplikasi OS).
 
-### openMaps(address: String): OpenMapsResult
-- **Parameter**: 
-  - `address`: Alamat yang akan dibuka di Maps
-- **Return**: 
-  - `OpenMapsResult.Success`: Aplikasi Maps berhasil dibuka
-  - `OpenMapsResult.Error(message)`: Gagal (aplikasi tidak ada atau sistem)
-- **Side effect**: Intent diluncurkan, user keluar dari aplikasi
+### `suspend fun openMaps(address: String): OpenMapsResult`
+- **Return**: `OpenMapsResult.Success` atau `OpenMapsResult.Error(message)`
 
-### openSystemSettings(): OpenSystemSettingsResult
-- **Return**: 
-  - `OpenSystemSettingsResult.Success`: Pengaturan sistem berhasil dibuka
-  - `OpenSystemSettingsResult.Error(message)`: Gagal (sistem)
-- **Side effect**: Intent diluncurkan, user masuk ke halaman pengaturan aplikasi
+### `suspend fun openSystemSettings(): OpenSystemSettingsResult`
+- **Return**: `OpenSystemSettingsResult.Success` atau `OpenSystemSettingsResult.Error(message)`
 
 ---
 
-## State Ownership
+## State Ownership & Error Handling
 
-- **Gateway**: Memegang single source of truth untuk semua data
-- **ViewModel**: Subscribe ke Flow dari gateway, tidak menyimpan data duplikat
-- **UI**: Menerima state dari ViewModel, tidak menyimpan data bisnis
-
-## Error Handling
-
-- Semua operasi menggunakan sealed result types
-- Exception sistem (OutOfMemoryError, dll) tidak ditangkap
-- Error bisnis (validasi, not found) dikembalikan sebagai result
-- UI harus menangani semua kemungkinan result
-
-## Threading
-
-- Semua suspend function dapat dipanggil dari coroutine mana saja
-- Gateway bertanggung jawab untuk thread safety internal
-- Flow dapat dikumpulkan dari thread mana saja
+- **Gateway**: Single source of truth. Menyimpan koleksi dan memancarkan via Kotlin StateFlow.
+- **ViewModel**: Menerjemahkan domain model ke UI state terformat.
+- **UI**: Deklaratif Jetpack Compose murni, merender UI State & meneruskan event balik ke ViewModel.
+- **Error Handling**: Semua kegagalan berupa sealed result types tanpa runtime exception unhandled.

@@ -13,13 +13,14 @@ import com.example.kontenin.ui.components.ConfirmationDialog
  */
 @Composable
 fun DeleteJobDialog(
+    jobName: String,
     onConfirm: () -> Unit,
     onDismissRequest: () -> Unit,
     isLoading: Boolean = false,
 ) {
     ConfirmationDialog(
         title = stringResource(R.string.delete_job_dialog_title),
-        message = stringResource(R.string.delete_job_dialog_message),
+        message = stringResource(R.string.delete_job_dialog_message, jobName),
         confirmLabel = stringResource(R.string.action_delete),
         dismissLabel = stringResource(R.string.action_cancel),
         onConfirm = onConfirm,

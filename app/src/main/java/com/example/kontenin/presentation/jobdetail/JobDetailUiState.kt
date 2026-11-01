@@ -16,6 +16,7 @@ data class JobDetailUiState(
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false,
     val userMessage: String? = null,
+    val snackbarActionLabel: String? = null,
 
     // Payment State (FE-14)
     val isMarkPaidVisible: Boolean = false,

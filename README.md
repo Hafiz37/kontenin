@@ -1,275 +1,137 @@
 # Kontenin
 
-Aplikasi Android native untuk Wedding Content Creator (WCC) freelance: mencatat job, pengingat otomatis, peringatan bentrok jadwal, rekap fee & piutang, serta backup data.
-
-**Status**: 🚧 Frontend Development (~60% completion)  
-**Fase**: FE-01 hingga FE-12 selesai, FE-13 hingga FE-19 dalam progress
+**Kontenin** adalah aplikasi Android native yang dirancang khusus untuk memfasilitasi kebutuhan operasional seorang *Wedding Content Creator* (WCC) freelance dalam mencatat pekerjaan, mengatur jadwal peliputan, memonitor pembayaran, serta merekap pendapatan tanpa bergantung pada koneksi internet.
 
 ---
 
-## 📱 Tentang Aplikasi
-
-**Kontenin** adalah aplikasi offline-first untuk mencatat job wedding content creator dengan fitur:
-- ✅ CRUD job dengan validasi lengkap
-- ✅ Autocomplete acara dan sumber job
-- ✅ Peringatan jadwal bentrok (non-blocking)
-- ✅ Pencatatan pembayaran (DP hingga lunas)
-- ⏳ Rekap per periode dan per sumber job
-- ⏳ Daftar piutang lintas periode
-- ⏳ Pengingat otomatis (H-7, H-3, H-1, 3 jam sebelum acara)
-- ⏳ Ekspor/Impor backup JSON
+## 📌 Nama Proyek
+- **Nama Aplikasi**: Kontenin
+- **Target Pengguna**: Freelancer Wedding Content Creator (WCC) individu
+- **Platform**: Android Native (`minSdk 26`, `targetSdk 34`)
+- **Zona Waktu & Format**: Asia/Jakarta (WIB) & Rupiah (Rp)
+- **Status Pengembangan**: Selesai Tahap Frontend (FE-01 s/d FE-20) / Menunggu Integrasi Backend
 
 ---
 
-## 🛠 Teknologi
+## 🔍 Rumusan Masalah
+Seorang Wedding Content Creator freelance kerap menerima pekerjaan dari berbagai sumber (klien pribadi langsung, vendor fotografer/videografer, maupun Event Organizer) tanpa didukung oleh staf admin. Hal ini menimbulkan sejumlah kendala operasional:
 
-| Komponen | Stack |
-|----------|-------|
-| **Bahasa** | Kotlin 100% |
-| **UI Framework** | Jetpack Compose + Material 3 |
-| **Arsitektur** | MVVM (ViewModel + Repository pattern) |
-| **Concurrency** | Kotlin Coroutines + Flow |
-| **Dependency Injection** | Manual (AppContainer) |
-| **Database** | ⏳ Room (belum diimplementasikan, pakai demo in-memory) |
-| **Alarm** | ⏳ AlarmManager (belum, pakai simulasi) |
-| **Backup** | ⏳ Storage Access Framework + JSON (belum) |
-| **Testing** | JUnit 4 + Compose UI Test + Espresso |
+1. **Informasi Tercecer**: Detail acara (nama pasangan pengantin, tanggal, rentang waktu, alamat, kontak PIC, tautan shareloc maps, hingga rundown acara) tersebar di berbagai obrolan aplikasi pesan singkat dan catatan pribadi.
+2. **Risiko Jadwal Terlewat atau Bentrok**: Jadwal yang tidak tersentralisasi berisiko memicu penerimaan dua pekerjaan di rentang waktu yang sama (*overlapping*), serta keterlambatan persiapan tanpa adanya sistem pengingat otomatis.
+3. **Pelacakan Fee & Piutang Tidak Rapi**: Pembayaran dari vendor seringkali berupa uang muka (DP) dengan pelunasan bertahap. Tanpa pencatatan yang jelas, penagihan sisa fee yang telah jatuh tempo sering terlupakan.
+4. **Kesulitan Mengetahui Performa Penghasilan**: Sulit melihat total pendapatan bersih per periode (harian, mingguan, bulanan) maupun breakdown kontribusi pendapatan berdasarkan sumber job (vendor mana yang paling menguntungkan).
+5. **Ketergantungan Perangkat & Risiko Kehilangan Data**: Catatan manual berisiko hilang apabila ponsel rusak, hilang, atau berganti perangkat tanpa adanya mekanisme pencadangan mandiri.
 
 ---
 
-## 🚀 Quick Start
+## 💡 Solusi yang Ditawarkan
+Aplikasi **Kontenin** menghadirkan solusi terintegrasi, praktis, dan *offline-first* dengan prinsip **sederhana dan tidak ribet**:
+
+- **Pusat Pengelolaan Job Terpadu**: Satu tempat untuk mencatat semua detail pekerjaan lengkap dengan autocomplete isian, navigasi Maps satu sentuhan, dan fitur duplikasi data pengantin untuk acara bertahap (misal: Akad lalu Resepsi).
+- **Deteksi Bentrok Jadwal Otomatis**: Memeriksa potensi irisan waktu antar-job secara *real-time* sebelum data disimpan dan memberikan dialog konfirmasi non-blocking.
+- **Pengingat Berlapis (Simulasi / Alarm Terjadwal)**: Menjadwalkan pengingat otomatis di titik kritis (H-7, H-3, H-1 pukul 08:00, serta 3 jam sebelum acara dimulai) tanpa perlu konfigurasi manual satu per satu.
+- **Pencatatan Pembayaran & Tagihan Piutang**: Memonitor status pembayaran (Belum Bayar, Kurang, Lunas) dengan validasi nominal, serta menyediakan daftar piutang khusus untuk job yang telah selesai dikerjakan namun belum lunas.
+- **Rekapitulasi Finansial & Analisis Sumber**: Ringkasan performa finansial per periode (Hari Ini, Minggu Ini, Bulan Ini) dan perincian kontribusi fee per sumber job/vendor.
+- **Cadangan Data Mandiri (Backup & Restore)**: Fitur ekspor dan impor seluruh basis data ke dalam satu berkas format JSON untuk keamanan jangka panjang tanpa membutuhkan server eksternal.
+
+---
+
+## 📖 Deskripsi Proyek
+Kontenin dibangun dengan arsitektur modern Android yang berpegang pada prinsip *offline-first* dan *privacy-first*. Aplikasi ini tidak memerlukan pendaftaran akun, login, maupun koneksi internet (tanpa izin `INTERNET`). 
+
+Aplikasi memiliki lima alur layar utama:
+1. **Beranda**: Menampilkan daftar job terorganisir dalam tab *Mendatang* (diurutkan waktu terdekat) dan *Riwayat*, dilengkapi filter cepat *Belum Lunas*.
+2. **Form Job**: Antarmuka pencatatan/pengeditan pekerjaan yang dilengkapi pemilih tanggal, waktu mulai, durasi, autocomplete acara dan sumber job, format input mata uang Rupiah, serta dialog konfirmasi bentrok dan pembatalan draft.
+3. **Detail Job**: Tampilan komprehensif seluruh data pasangan, alamat, tautan Google Maps langsung, penyesuaian nominal pembayaran cepat (*inline dialog*), fitur duplikat, dan penghapusan data dengan konfirmasi keamanan.
+4. **Rekap & Piutang**: Dashboard analitik penghasilan dengan segmented control periode, visualisasi angka nominal tabular (28sp bold), daftar distribusi vendor, serta seksi daftar tagihan piutang lintas periode.
+5. **Pengaturan & Cadangan**: Pusat kendali status izin sistem (Notifikasi & Alarm Tepat Waktu), dialog panduan baterai/autostart vendor, pengujian pengingat, serta flow ekspor dan impor berkas JSON.
+
+---
+
+## 🛠 Teknologi yang Digunakan
+
+Aplikasi ini menggunakan ekosistem pengembangan Android native termutakhir:
+
+| Lapisan / Komponen | Teknologi | Keterangan & Peran |
+|---|---|---|
+| **Bahasa Pemrograman** | **Kotlin 1.9+** | Bahasa utama 100% untuk seluruh logika dan antarmuka. |
+| **UI Toolkit** | **Jetpack Compose** | Deklaratif UI modern Android menggantikan sistem XML View tradisional. |
+| **Design System** | **Material 3 (M3)** | Komponen Material Design 3 dengan palet warna custom dan tipografi sistem (Roboto). |
+| **Pola Arsitektur** | **MVVM (Model-View-ViewModel)** | Pemisahan logika bisnis dari UI untuk kemudahan pengujian dan perawatan. |
+| **Dependency Injection** | **Manual DI (`AppContainer`)** | Kontainer dependensi terpusat tanpa library reflektif berat seperti Dagger/Hilt. |
+| **Manajemen Asinkron** | **Kotlin Coroutines & StateFlow** | Aliran data reaktif dan eksekusi non-blocking yang aman terhadap siklus hidup (lifecycle-aware). |
+| **Navigasi** | **Navigation Compose** | Manajemen rute navigasi antar layar dan passing argumen berbasis tipe. |
+| **Form & State Retention** | **SavedStateHandle** | Menjaga integritas data input form saat terjadi konfigurasi ulang (rotasi layar atau process death). |
+| **Testing Framework** | **JUnit 4, Compose UI Test, Mockk** | Unit test untuk logika bisnis/validator dan instrumented UI test untuk acceptance alur. |
+| **Platform Target** | **Android SDK 26 - 34** | Mendukung Android 8.0 (Oreo) hingga Android 14 tanpa dependensi pihak ketiga yang tidak perlu. |
+
+*(Catatan: Pada tahap handoff backend berikutnya, lapisan data in-memory demo akan digantikan dengan **Room Database**, **Android AlarmManager**, serta **Storage Access Framework (SAF)**).*
+
+---
+
+## 🚀 Panduan Build & Pengujian
 
 ### Prasyarat
-- Android Studio Hedgehog (2023.1.1) atau lebih baru
-- JDK 17 (bundled di Android Studio: `/opt/android-studio/jbr`)
-- Android SDK 26+ (targetSdk 34)
-- Emulator atau device fisik Android 8.0+
+- JDK 17 (disarankan JDK bawaan Android Studio: `/opt/android-studio/jbr`)
+- Android Studio Hedgehog (2023.1.1) atau versi lebih baru
+- Android SDK Platform 34
 
-### Clone dan Build
-
-```bash
-# Clone repository
-git clone <repository-url>
-cd kontenin
-
-# Build dengan Gradle wrapper (offline mode jika dependency sudah ada)
-JAVA_HOME=/opt/android-studio/jbr ./gradlew --offline :app:assembleDebug
-
-# Atau tanpa offline jika pertama kali
-./gradlew :app:assembleDebug
-
-# Install di device/emulator terhubung
-./gradlew :app:installDebug
-```
-
-### Menjalankan Tests
+### Perintah Gradle
 
 ```bash
-# Unit tests (logika murni: validasi, formatter, conflict detection)
-./gradlew :app:testDebugUnitTest
+# Build APK Debug
+JAVA_HOME=/opt/android-studio/jbr ./gradlew :app:assembleDebug
 
-# Lint check
-./gradlew :app:lintDebug
+# Menjalankan seluruh Unit Test (100% PASS)
+JAVA_HOME=/opt/android-studio/jbr ./gradlew :app:testDebugUnitTest
 
-# UI tests (butuh emulator/device)
-./gradlew :app:connectedDebugAndroidTest
-```
+# Memeriksa kualitas kode & aturan Lint (0 Errors)
+JAVA_HOME=/opt/android-studio/jbr ./gradlew :app:lintDebug
 
-**Status Test Saat Ini**:
-- ✅ Unit tests: 24/24 lulus
-- ✅ Lint: 0 errors, 43 warnings (non-blocking)
-- ⚠️ UI tests: 3/6 lulus (blocker: FE-13–FE-17 belum lengkap)
-
----
-
-## 📂 Struktur Proyek
-
-```
-kontenin/
-├── app/src/main/java/com/example/kontenin/
-│   ├── MainActivity.kt                    # Entry point aplikasi
-│   ├── AppContainer.kt                    # Manual DI container
-│   │
-│   ├── model/                             # Data models (Job, JobDraft)
-│   ├── contract/                          # Gateway interfaces
-│   ├── demo/                              # In-memory implementations untuk frontend
-│   │
-│   ├── presentation/                      # ViewModels & business logic
-│   │   ├── home/                          # Beranda (tab, filter)
-│   │   ├── jobform/                       # Form Job (validasi, autocomplete, bentrok)
-│   │   ├── jobdetail/                     # Detail Job ⚠️ parsial
-│   │   ├── recap/                         # Rekap & Piutang ⚠️ parsial
-│   │   ├── settings/                      # Pengaturan ⚠️ parsial
-│   │   ├── JobDisplayMapper.kt            # Transformasi Job → UI data
-│   │   └── PaymentValidator.kt            # Validasi pembayaran bersama
-│   │
-│   ├── ui/                                # Compose UI
-│   │   ├── theme/                         # Material 3 theming (Color, Type, Shape)
-│   │   ├── components/                    # Reusable components
-│   │   ├── screens/                       # Layar aplikasi
-│   │   ├── navigation/                    # Navigation graph
-│   │   └── KonteninApp.kt                 # Root composable
-│   │
-│   └── util/                              # Utilities (Clock, Formatters)
-│
-├── app/src/test/                          # Unit tests ✅
-├── app/src/androidTest/                   # UI tests ⚠️
-│
-├── brief/                                 # Dokumentasi requirement
-│   ├── brief-kontenin.md                  # Brief utama dari pemilik
-│   ├── PRD-Kontenin-v0.1.md              # Product Requirements Document
-│   ├── DESIGN.md                          # Design specification
-│   └── Kontenin-Frontend-Tasks.md         # Task breakdown FE-01 hingga FE-20
-│
-└── docs/                                  # Dokumentasi teknis
-    ├── frontend-contracts.md              # ✅ Kontrak gateway untuk integrasi
-    ├── frontend-decisions.md              # ✅ Keputusan arsitektur
-    ├── frontend-handoff.md                # ✅ Panduan integrasi backend
-    ├── frontend-acceptance.md             # ✅ Checklist kriteria selesai
-    ├── frontend-test-report.md            # ✅ Hasil testing
-    └── frontend-qa-checklist.md           # ⚠️ Checklist QA per layar
+# Mengompilasi APK Instrumented Test
+JAVA_HOME=/opt/android-studio/jbr ./gradlew :app:assembleDebugAndroidTest
 ```
 
 ---
 
-## 📖 Dokumentasi
+## 📂 Struktur Direktori Proyek
 
-### Untuk Developer Frontend
-- **[Frontend Contracts](docs/frontend-contracts.md)** — Interface gateway dan ownership state
-- **[Frontend Decisions](docs/frontend-decisions.md)** — Keputusan arsitektur dan pattern
-- **[Test Report](docs/frontend-test-report.md)** — Hasil testing dan blocker
-
-### Untuk Backend Integration
-- **[Frontend Handoff](docs/frontend-handoff.md)** — Panduan integrasi backend (pemetaan kontrak → Room/AlarmManager/SAF)
-- **[Frontend Acceptance](docs/frontend-acceptance.md)** — Kriteria selesai dan status acceptance
-
-### Untuk Pemilik Proyek
-- **[Brief](brief/brief-kontenin.md)** — Requirement dan instruksi AI
-- **[PRD](brief/PRD-Kontenin-v0.1.md)** — Spesifikasi fitur dan use case
-- **[DESIGN](brief/DESIGN.md)** — Spesifikasi visual dan UX
-
----
-
-## 🎯 Progress Task Frontend
-
-| Task | Status | Keterangan |
-|------|--------|------------|
-| FE-01 | ✅ | Setup proyek, Kotlin, Compose, Material 3, DI manual |
-| FE-02 | ✅ | Model, kontrak gateway, demo in-memory |
-| FE-03 | ✅ | Tema Roboto, palet warna light/dark |
-| FE-04 | ✅ | Komponen UI bersama (button, field, chip, dialog) |
-| FE-05 | ✅ | Navigasi bottom bar dan kerangka 5 layar |
-| FE-06 | ✅ | Formatter waktu/rupiah, JobCard, date picker converter |
-| FE-07 | ✅ | Beranda: tab Mendatang/Riwayat + filter Belum Lunas |
-| FE-08 | ✅ | Form Job: semua field + SavedStateHandle |
-| FE-09 | ✅ | Validasi form lengkap + tombol Lunas |
-| FE-10 | ✅ | Autocomplete acara/sumber job + normalisasi ejaan |
-| FE-11 | ✅ | Simpan/ubah/duplikat job |
-| FE-12 | ✅ | Dialog bentrok non-blocking |
-| FE-13 | ⚠️ | Detail Job (struktur ada, UI perlu finalisasi) |
-| FE-14 | ⚠️ | Pembayaran di Detail (validator ada, UI perlu finalisasi) |
-| FE-15 | ⚠️ | Rekap + Per Sumber + Piutang (calculator ada, UI perlu finalisasi) |
-| FE-16 | ⚠️ | Pengaturan + pengingat simulasi (struktur ada, UI perlu finalisasi) |
-| FE-17 | ❌ | UI Ekspor/Impor (belum diimplementasikan) |
-| FE-18 | ❌ | Polish aksesibilitas dan layout (belum dijalankan) |
-| FE-19 | ❌ | Verifikasi alur (3/6 test gagal, blocker FE-13–FE-17) |
-| FE-20 | ⚠️ | Dokumentasi handoff (dokumen dibuat, menunggu completion) |
-
-**Progress**: ~60% (12/20 selesai penuh, 5/20 parsial, 3/20 belum)
+```
+app/src/main/java/com/example/kontenin/
+├── MainActivity.kt                     # Entry point Activity
+├── AppContainer.kt                     # Manual Dependency Injection container
+│
+├── contract/                           # Definisi antarmuka Gateway (Job, Reminder, Backup, ExternalAction)
+├── demo/                               # Implementasi in-memory & data fixtures untuk fase frontend
+├── model/                              # Model domain entitas (Job, JobDraft)
+│
+├── presentation/                       # Lapisan ViewModel & aturan logika murni
+│   ├── home/                           # HomeViewModel, HomeUiState, HomeRules
+│   ├── jobform/                        # JobFormViewModel, FormValidator, AutocompleteRules
+│   ├── jobdetail/                      # JobDetailViewModel, JobDetailUiState
+│   ├── recap/                          # RecapViewModel, RecapCalculator, RecapUiState
+│   └── settings/                       # SettingsViewModel, BackupController, BackupUiState
+│
+├── ui/                                 # Lapisan Presentasi Jetpack Compose
+│   ├── theme/                          # Token tema (Color, Type, Shape, Dimensions)
+│   ├── components/                     # Komponen bersama (Buttons, TextField, MoneyField, Chips, Dialogs)
+│   ├── navigation/                     # KonteninNavHost, Route navigation graph
+│   └── screens/                        # Layar aplikasi (Home, JobForm, JobDetail, Recap, Settings)
+│
+└── util/                               # Utility helpers (DisplayFormatter, RupiahFormatter, Clock)
+```
 
 ---
 
-## ⚠️ Catatan Penting
-
-### Data Tidak Persisten
-**Aplikasi fase frontend ini menggunakan data demo in-memory**. Semua perubahan akan hilang saat aplikasi ditutup/restart. Ini **by design** untuk fase frontend agar tidak mencampurkan implementasi UI dengan backend.
-
-### Package Name Sementara
-`com.example.kontenin` adalah placeholder untuk MVP lokal. Package final untuk rilis publik akan ditentukan nanti.
-
-### Backend Belum Ada
-- ✅ **Sudah ada**: UI, validasi, kontrak gateway, demo gateway
-- ❌ **Belum ada**: Room database, AlarmManager, Storage Access Framework, permission handling
-
-### Testing Terbatas
-- ✅ Unit test: logika murni (validasi, formatter, conflict detection)
-- ⚠️ UI test: sebagian lulus, sebagian blocker fitur FE-13–FE-17
-- ❌ Alarm reliability: belum diuji (menunggu backend)
-- ❌ Poco X3 GT: belum diuji di perangkat fisik
+## 📄 Dokumentasi Terkait
+- **[Brief Proyek](brief/brief-kontenin.md)** — Kebutuhan operasional dan instruksi dasar
+- **[Product Requirements Document (PRD)](brief/PRD-Kontenin-v0.1.md)** — Spesifikasi rinci seluruh fitur dan edge cases
+- **[Design Specification](brief/DESIGN.md)** — Panduan visual, tipografi, warna, dan komponen
+- **[Kontrak Gateway Frontend](docs/frontend-contracts.md)** — Spesifikasi kontrak integrasi backend
+- **[Panduan Handoff Backend](docs/frontend-handoff.md)** — Roadmap implementasi database dan alarm
+- **[Checklist Penerimaan Frontend](docs/frontend-acceptance.md)** — Kriteria penerimaan dan status verifikasi FE-01–FE-20
 
 ---
 
-## 🚦 Roadmap
-
-### ✅ Fase 1: Frontend Foundation (Selesai)
-- Setup proyek, tema, komponen
-- Navigasi dan kerangka layar
-- Model dan kontrak gateway
-
-### 🚧 Fase 2: Frontend Features (Saat Ini)
-- ✅ Beranda dan Form Job lengkap
-- ⏳ Detail, Rekap, Pengaturan (finalisasi UI)
-- ⏳ Ekspor/Impor UI
-- ⏳ Polish dan aksesibilitas
-
-### 📅 Fase 3: Backend Integration (Belum Mulai)
-- Room database + DAO + Entity
-- AlarmManager + ReminderScheduler + BroadcastReceiver
-- Storage Access Framework + JSON serialization
-- Permission handling (POST_NOTIFICATIONS, SCHEDULE_EXACT_ALARM)
-- Ganti DemoGateway → implementasi nyata
-
-### 📅 Fase 4: Testing & Polish (Belum Mulai)
-- Uji alarm di Poco X3 GT (reboot, layar mati, doze mode)
-- Round-trip backup: ekspor → hapus → install → impor
-- Performance test 1000 job di perangkat fisik
-- Aksesibilitas audit lengkap
-
-### 📅 Fase 5: MVP Release (Belum Dijadwalkan)
-- Package name final
-- Ikon aplikasi dan splash screen
-- Screenshot dan deskripsi untuk dokumentasi
-- User testing dengan pemilik proyek
-
----
-
-## 🐛 Known Issues & Blocker
-
-### Blocker Kritis (Mencegah Handoff Backend)
-1. **FE-13**: Detail Job belum UI lengkap (tampilan, Maps, action bar, hapus)
-2. **FE-14**: Dialog Ubah Pembayaran belum terintegrasi
-3. **FE-15**: Card ringkasan Rekap, Per Sumber, Piutang belum ditampilkan
-4. **FE-16**: Status izin, banner, Uji Pengingat, petunjuk baterai belum UI
-5. **FE-17**: Ekspor/Impor belum diimplementasikan sama sekali
-6. **FE-18**: TalkBack audit, font 200% test, keyboard nav belum dijalankan
-7. **FE-19**: 3 dari 6 UI test gagal
-
-### Non-blocker (Can Wait)
-- Animasi transisi antar layar
-- Preview mode untuk screenshot
-- Dark mode comparison screenshots
-
----
-
-## 📞 Kontak & Support
-
-- **Developer**: AI Software Engineer
-- **Pemilik Proyek**: [Belum diisi]
-- **Repository**: [Belum diisi]
-
-Untuk pertanyaan tentang:
-- **Requirement**: Lihat `brief/brief-kontenin.md`
-- **Arsitektur**: Lihat `docs/frontend-decisions.md`
-- **Integrasi Backend**: Lihat `docs/frontend-handoff.md`
-- **Testing**: Lihat `docs/frontend-test-report.md`
-
----
-
-## 📜 Lisensi
-
-[Belum ditentukan] - Aplikasi pribadi untuk proyek kuliah dan pemakaian freelancer wedding content creator.
-
----
-
-**Last Updated**: 1 November 2026  
-**Version**: 0.1.0-alpha (Frontend Development)
+**Versi**: 0.1.0-alpha  
+**Lisensi**: Proyek Tugas Kuliah Pemrograman Bergerak & Personal WCC Helper Tool

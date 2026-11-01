@@ -18,7 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -28,8 +28,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -49,6 +51,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.example.kontenin.R
 import com.example.kontenin.presentation.jobdetail.JobDetailViewModel
+import com.example.kontenin.ui.components.SkeletonJobList
 import com.example.kontenin.ui.theme.KonteninRadius
 import com.example.kontenin.ui.theme.KonteninTheme
 
@@ -66,6 +69,7 @@ fun JobDetailScreen(
     onNavigateBack: () -> Unit,
     onNavigateToEdit: (jobId: Long) -> Unit,
     onNavigateToDuplicate: (jobId: Long) -> Unit,
+    onNavigateToHome: () -> Unit = onNavigateBack,
     modifier: Modifier = Modifier,
 ) {
     val colors = KonteninTheme.colorScheme
@@ -78,26 +82,36 @@ fun JobDetailScreen(
     LaunchedEffect(uiState.userMessage) {
         val message = uiState.userMessage
         if (message != null) {
-            snackbarHostState.showSnackbar(message)
+            val actionLabel = uiState.snackbarActionLabel
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = actionLabel,
+                duration = if (actionLabel != null) SnackbarDuration.Long else SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.retryLastAction()
+            }
             viewModel.onUserMessageConsumed()
         }
     }
 
     LaunchedEffect(uiState.isJobNotFound) {
         if (uiState.isJobNotFound) {
-            onNavigateBack()
+            onNavigateToHome()
         }
     }
 
     LaunchedEffect(uiState.isDeleted) {
         if (uiState.isDeleted) {
-            onNavigateBack()
+            onNavigateToHome()
         }
     }
 
     // ── Dialog Konfirmasi Hapus ────────────────────────────────────────────────
     if (uiState.showDeleteDialog) {
+        val jobName = uiState.job?.let { "${it.namaPengantin1} & ${it.namaPengantin2}" } ?: ""
         DeleteJobDialog(
+            jobName = jobName,
             onConfirm = viewModel::onDeleteConfirm,
             onDismissRequest = viewModel::onDeleteDismiss,
             isLoading = uiState.isDeleting,
@@ -125,7 +139,7 @@ fun JobDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
                         )
                     }
@@ -145,14 +159,13 @@ fun JobDetailScreen(
         },
     ) { innerPadding ->
         if (uiState.isLoading) {
-            Box(
+            SkeletonJobList(
+                count = 3,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
+                    .padding(innerPadding)
+                    .padding(horizontal = spacing.space4, vertical = spacing.space2),
+            )
         } else if (uiState.job != null && uiState.jobDisplay != null) {
             val job = uiState.job!!
             val jobDisplay = uiState.jobDisplay!!
