@@ -1,7 +1,8 @@
 package com.example.kontenin.demo
 
 import com.example.kontenin.model.Job
-import java.time.LocalDate
+import com.example.kontenin.util.AppClock
+import com.example.kontenin.util.SystemClock
 
 object DemoFixtures {
     
@@ -39,9 +40,9 @@ object DemoFixtures {
         updatedAt = updatedAt
     )
     
-    fun getDefaultSeed(): List<Job> {
-        val today = LocalDate.now().toEpochDay()
-        val baseTime = System.currentTimeMillis()
+    fun getDefaultSeed(clock: AppClock = SystemClock()): List<Job> {
+        val today = clock.nowLocalDate().toEpochDay()
+        val baseTime = clock.nowEpochMillis()
         
         return listOf(
             createJob(
@@ -149,9 +150,9 @@ object DemoFixtures {
         )
     }
     
-    fun getLargeDatasetSeed(): List<Job> {
-        val today = LocalDate.now().toEpochDay()
-        val baseTime = System.currentTimeMillis()
+    fun getLargeDatasetSeed(clock: AppClock = SystemClock()): List<Job> {
+        val today = clock.nowLocalDate().toEpochDay()
+        val baseTime = clock.nowEpochMillis()
         
         return (1..1000).map { i ->
             createJob(

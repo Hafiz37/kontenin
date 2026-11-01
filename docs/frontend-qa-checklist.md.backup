@@ -1,0 +1,37 @@
+# Checklist regresi frontend FE-19
+
+Tanggal pemeriksaan: 1 November 2026. Branch: `frontend/frontend-verification`.
+Acuan: seluruh empat dokumen `brief/`; keputusan terisi PRD §10 dan DESIGN §10A/10B mengungguli teks lama. Lingkup tetap frontend demo sesuai dokumen task.
+
+## Status penerimaan
+
+**BELUM LULUS.** FE-09–FE-18 belum tersedia lengkap dalam kode pada branch ini. Keberhasilan build/unit test tidak berarti user journey selesai. Lihat `frontend-test-report.md` untuk hasil perintah aktual.
+
+## Alur dan prasyarat yang menghalangi
+
+- [ ] Tambah → validasi → simpan: `JobFormViewModel.onSaveClick()` masih TODO (FE-09/11).
+- [ ] Autocomplete/canonicalisasi acara dan sumber: belum terpasang (FE-10).
+- [ ] Peringatan bentrok → Kembali/Tetap Simpan: UI belum tersedia (FE-12). Perbaikan hitung lintas hari pada gateway tidak membuktikan dialog berfungsi.
+- [ ] Ubah/duplikat: `loadJobData()` masih TODO; draft tidak terisi dari job (FE-11).
+- [ ] Buang perubahan: tombol tutup langsung kembali tanpa konfirmasi (FE-11).
+- [ ] Detail/Maps/hapus: layar placeholder; aksi hapus kosong (FE-13).
+- [ ] Pembayaran: dialog dan aksi Detail belum tersedia (FE-14).
+- [ ] Rekap/per sumber/piutang: hanya pilihan periode dan placeholder (FE-15).
+- [ ] Izin/pengingat/notifikasi ID valid/hilang: Pengaturan placeholder (FE-16).
+- [ ] Impor batal/invalid/gagal/sukses, ketuk ganda: label Pengaturan tidak interaktif; `confirmImport()` hanya mengembalikan sukses tanpa mengganti koleksi (FE-17).
+- [ ] Perilaku pending/error UI: belum terhubung; belum dapat membuktikan mutasi tunggal saat ketuk ganda.
+- [x] Label data simulasi ditambahkan di host aplikasi; tidak mengklaim penyimpanan permanen.
+- [x] Tidak ada kontrol debug yang tampil pada source UI saat ini. Kontrol skenario FE-16 sendiri belum dibuat; ini bukan bukti build release lulus audit.
+
+## Checklist manual yang harus diulang setelah prasyarat tersedia
+
+Untuk **Beranda, Form, Detail, Rekap, Pengaturan**, periksa masing-masing kondisi loading, kosong, error, retry, disabled, dan sukses pada light/dark × font 100%/200% × layar 360 dp. Semua kombinasi tersebut **belum lulus review visual** pada sesi ini.
+
+- [ ] Aksi utama terlihat, nominal penuh, tanggal aktual, lintas hari menampilkan tanggal selesai.
+- [ ] Keyboard tidak menutup Simpan; judul duplikat panjang membungkus.
+- [ ] TalkBack: tambah, perbaiki error, detail, batal hapus; fokus dialog kembali ke pemicu.
+- [ ] 1000 job: scroll, buka detail, kembali, posisi pulih.
+- [ ] Fixture FE-15 pada 29 Oktober 2026 12.00 WIB: A 08.00/2 jam fee 1.000.000 dibayar 400.000; B 15.00 fee 2.000.000 lunas; C 20 Oktober fee 500.000 belum dibayar. Hari Ini: 2 job, fee 3.000.000, dibayar 2.400.000, sisa 600.000. Piutang: C lalu A, total 1.100.000. Belum dapat dicocokkan dengan UI Rekap placeholder.
+- [ ] Poco X3 GT: belum diuji; versi Android pemilik belum diketahui.
+
+Pengujian Room, alarm OS, reboot, file backup nyata dan rollback/reschedule backend tidak termasuk FE-19 dan tidak diklaim lulus.

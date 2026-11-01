@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.ExampleUnitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:31.821Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.006">
+  <properties/>
+  <testcase name="addition_isCorrect" classname="com.example.kontenin.ExampleUnitTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

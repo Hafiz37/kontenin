@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.util.DisplayFormatterTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:33.351Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.162">
+  <properties/>
+  <testcase name="format rupiah with thousands separator" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.014"/>
+  <testcase name="time range with 24 hour duration crosses to next day" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.092"/>
+  <testcase name="format time from minutes since midnight" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.004"/>
+  <testcase name="format rupiah with label" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.007"/>
+  <testcase name="format rupiah large amount" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.0"/>
+  <testcase name="format rupiah zero" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.003"/>
+  <testcase name="parse rupiah string to long" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.007"/>
+  <testcase name="time range on same day" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.001"/>
+  <testcase name="payment status partial payment formatting" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.0"/>
+  <testcase name="parse invalid rupiah returns null" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.0"/>
+  <testcase name="get day name in Indonesian" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.01"/>
+  <testcase name="format date with actual day name from calendar" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.007"/>
+  <testcase name="format date and time range combined" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.001"/>
+  <testcase name="format date short without year" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.001"/>
+  <testcase name="time range crosses midnight shows next day date OQ-7" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.002"/>
+  <testcase name="format number only without Rp prefix" classname="com.example.kontenin.util.DisplayFormatterTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

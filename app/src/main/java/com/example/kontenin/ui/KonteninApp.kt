@@ -1,5 +1,11 @@
 package com.example.kontenin.ui
 
+import com.example.kontenin.AppContainer
+import com.example.kontenin.R
+import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -29,7 +35,7 @@ import com.example.kontenin.ui.navigation.Routes
  *   di MainActivity via enableEdgeToEdge()).
  */
 @Composable
-fun KonteninApp() {
+fun KonteninApp(appContainer: AppContainer) {
     val navController       = rememberNavController()
     val snackbarHostState   = remember { SnackbarHostState() }
 
@@ -41,6 +47,12 @@ fun KonteninApp() {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            Text(
+                text = stringResource(R.string.demo_data_notice),
+                modifier = Modifier.statusBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp),
+            )
+        },
         bottomBar = {
             if (showBottomBar) {
                 MainBottomBar(
@@ -66,6 +78,7 @@ fun KonteninApp() {
         },
     ) { innerPadding ->
         KonteninNavHost(
+            appContainer      = appContainer,
             navController     = navController,
             snackbarHostState = snackbarHostState,
             modifier          = Modifier.padding(innerPadding),

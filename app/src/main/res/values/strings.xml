@@ -309,4 +309,7 @@
     <string name="demo_backup_invalid_btn">Impor File Rusak</string>
     <string name="demo_backup_fail_btn">Impor Gagal Transaksi</string>
     <string name="demo_backup_export_btn">Ekspor Demo</string>
+
+    <!-- Demo Data Notice (FE-19) -->
+    <string name="demo_data_notice">Data simulasi • Perubahan hilang saat aplikasi dimulai ulang</string>
 </resources>

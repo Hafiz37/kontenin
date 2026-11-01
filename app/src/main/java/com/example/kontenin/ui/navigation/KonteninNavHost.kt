@@ -4,17 +4,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.kontenin.AppContainer
-import com.example.kontenin.MainActivity
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
 import com.example.kontenin.ui.screens.home.HomeScreen
 import com.example.kontenin.ui.screens.jobdetail.JobDetailScreen
 import com.example.kontenin.ui.screens.jobform.JobFormScreen
@@ -37,13 +32,8 @@ fun KonteninNavHost(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
+    appContainer: AppContainer,
 ) {
-    // Ambil AppContainer dari MainActivity
-    val context = LocalContext.current
-    val appContainer = remember {
-        (context as? MainActivity)?.appContainer 
-            ?: throw IllegalStateException("AppContainer tidak ditemukan di MainActivity")
-    }
     NavHost(
         navController = navController,
         startDestination = Routes.Home.route,

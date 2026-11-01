@@ -26,8 +26,8 @@ class DemoJobGateway(
     fun resetToSeed() {
         val seed = when (scenario) {
             DemoScenario.EMPTY_DATA -> DemoFixtures.getEmptySeed()
-            DemoScenario.LARGE_DATASET -> DemoFixtures.getLargeDatasetSeed()
-            else -> DemoFixtures.getDefaultSeed()
+            DemoScenario.LARGE_DATASET -> DemoFixtures.getLargeDatasetSeed(clock)
+            else -> DemoFixtures.getDefaultSeed(clock)
         }
         jobs.value = seed.associateBy { it.id }
         nextId = (seed.maxOfOrNull { it.id } ?: 0L) + 1

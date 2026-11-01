@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.util.DatePickerConverterTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:33.327Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.013">
+  <properties/>
+  <testcase name="convert end of month does not shift to next month" classname="com.example.kontenin.util.DatePickerConverterTest" time="0.003"/>
+  <testcase name="convert on month boundary does not shift to previous month" classname="com.example.kontenin.util.DatePickerConverterTest" time="0.002"/>
+  <testcase name="convert to epoch day for database storage" classname="com.example.kontenin.util.DatePickerConverterTest" time="0.002"/>
+  <testcase name="convert on year boundary does not shift to previous year" classname="com.example.kontenin.util.DatePickerConverterTest" time="0.002"/>
+  <testcase name="convert UTC millis to LocalDate does not shift date" classname="com.example.kontenin.util.DatePickerConverterTest" time="0.001"/>
+  <testcase name="round trip conversion preserves date" classname="com.example.kontenin.util.DatePickerConverterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.ComponentsTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:30.984Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.807">
+  <properties/>
+  <testcase name="testFormatThousandsString" classname="com.example.kontenin.ComponentsTest" time="0.187"/>
+  <testcase name="testCharacterCounterThresholdLogic" classname="com.example.kontenin.ComponentsTest" time="0.0"/>
+  <testcase name="testRupiahThousandsVisualTransformationOffsetMapping" classname="com.example.kontenin.ComponentsTest" time="0.478"/>
+  <testcase name="testAdaptiveDialogStackingRule" classname="com.example.kontenin.ComponentsTest" time="0.006"/>
+  <testcase name="testComponentDimensionsAndTouchTargets" classname="com.example.kontenin.ComponentsTest" time="0.024"/>
+  <testcase name="testRupiahToIndonesianWordsForTalkBack" classname="com.example.kontenin.ComponentsTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

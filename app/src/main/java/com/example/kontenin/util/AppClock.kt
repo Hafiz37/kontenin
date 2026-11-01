@@ -36,7 +36,7 @@ class FixedClock(private val fixedInstant: Instant) : AppClock {
         LocalDateTime.ofInstant(fixedInstant, wibZone)
     
     override fun nowLocalDate(): LocalDate = 
-        LocalDate.ofInstant(fixedInstant, wibZone)
+        fixedInstant.atZone(wibZone).toLocalDate()
     
     override fun nowEpochMillis(): Long = 
         fixedInstant.toEpochMilli()

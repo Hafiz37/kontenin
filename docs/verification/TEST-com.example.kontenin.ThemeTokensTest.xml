@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.ThemeTokensTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:31.864Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.683">
+  <properties/>
+  <testcase name="testDimensionsAndSpacingMatchDesign" classname="com.example.kontenin.ThemeTokensTest" time="0.0"/>
+  <testcase name="testTypographyTokensMatchDesignAndHaveTabularFigures" classname="com.example.kontenin.ThemeTokensTest" time="0.584"/>
+  <testcase name="testContrastRatiosComplyWithDesignWcag" classname="com.example.kontenin.ThemeTokensTest" time="0.015"/>
+  <testcase name="testLightModeColorTokensMatchDesign" classname="com.example.kontenin.ThemeTokensTest" time="0.068"/>
+  <testcase name="testExtendedColorsHoldBrandAndWarning" classname="com.example.kontenin.ThemeTokensTest" time="0.001"/>
+  <testcase name="testDarkModeColorTokensMatchDesign" classname="com.example.kontenin.ThemeTokensTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,221 @@
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/java/com/example/kontenin/demo/DemoBackupGateway.kt:18: Warning: Do not hardcode "/sdcard/"; use Environment.getExternalStorageDirectory().getPath() instead [SdCardPath]
+                    path = "/sdcard/Download/kontenin_backup_demo.json",
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SdCardPath":
+   Your code should not reference the /sdcard path directly; instead use
+   Environment.getExternalStorageDirectory().getPath().
+
+   Similarly, do not reference the /data/data/ path directly; it can vary in
+   multi-user scenarios. Instead, use Context.getFilesDir().getPath().
+
+   https://developer.android.com/training/data-storage#filesExternal
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/AndroidManifest.xml:17: Warning: Redundant label can be removed [RedundantLabel]
+            android:label="@string/app_name"
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "RedundantLabel":
+   When an activity does not have a label attribute, it will use the one from
+   the application tag. Since the application has already specified the same
+   label, the label on this activity can be omitted.
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/gradle/wrapper/gradle-wrapper.properties:5: Warning: A newer version of Gradle than 9.6.0 is available: 9.8.2 [AndroidGradlePluginVersion]
+distributionUrl=https\://services.gradle.org/distributions/gradle-9.6.0-bin.zip
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/gradle/libs.versions.toml:2: Warning: A newer version of com.android.application than 9.4.1 is available: 9.5.0 [AndroidGradlePluginVersion]
+agp = "9.4.1"
+      ~~~~~~~
+
+   Explanation for issues of type "AndroidGradlePluginVersion":
+   This detector looks for usage of the Android Gradle Plugin where the
+   version you are using is not the current stable release. Using older
+   versions is fine, and there are cases where you deliberately want to stick
+   with an older version. However, you may simply not be aware that a more
+   recent version is available, and that is what this lint check helps find.
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/gradle/libs.versions.toml:10: Warning: A newer version of androidx.compose:compose-bom than 2026.02.01 is available: 2026.09.00 [GradleDependency]
+composeBom = "2026.02.01"
+             ~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/gradle/libs.versions.toml:11: Warning: A newer version of androidx.navigation:navigation-compose than 2.8.9 is available: 2.10.2 [GradleDependency]
+navigationCompose = "2.8.9"
+                    ~~~~~~~
+
+   Explanation for issues of type "GradleDependency":
+   This detector looks for usages of libraries where the version you are using
+   is not the current stable release. Using older versions is fine, and there
+   are cases where you deliberately want to stick with an older version.
+   However, you may simply not be aware that a more recent version is
+   available, and that is what this lint check helps find.
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/gradle/libs.versions.toml:9: Warning: A newer version of org.jetbrains.kotlin.plugin.compose than 2.2.10 is available: 2.4.21 [NewerVersionAvailable]
+kotlin = "2.2.10"
+         ~~~~~~~~
+
+   Explanation for issues of type "NewerVersionAvailable":
+   This detector checks with a central repository to see if there are newer
+   versions available for the dependencies used by this project. This is
+   similar to the GradleDependency check, which checks for newer versions
+   available in the Android SDK tools and libraries, but this works with any
+   MavenCentral dependency, and connects to the library every time, which
+   makes it more flexible but also much slower.
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/mipmap-anydpi-v26: Warning: This folder configuration (v26) is unnecessary; minSdkVersion is 26. Merge all the resources in this folder into mipmap-anydpi. [ObsoleteSdkInt]
+
+   Explanation for issues of type "ObsoleteSdkInt":
+   This check flags version checks that are not necessary, because the
+   minSdkVersion (or surrounding known API level) is already at least as high
+   as the version checked for.
+
+   Similarly, it also looks for resources in -vNN folders, such as values-v14
+   where the version qualifier is less than or equal to the minSdkVersion,
+   where the contents should be merged into the best folder.
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:3: Warning: The resource R.color.purple_200 appears to be unused [UnusedResources]
+    <color name="purple_200">#FFBB86FC</color>
+           ~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:4: Warning: The resource R.color.purple_500 appears to be unused [UnusedResources]
+    <color name="purple_500">#FF6200EE</color>
+           ~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:5: Warning: The resource R.color.purple_700 appears to be unused [UnusedResources]
+    <color name="purple_700">#FF3700B3</color>
+           ~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:6: Warning: The resource R.color.teal_200 appears to be unused [UnusedResources]
+    <color name="teal_200">#FF03DAC5</color>
+           ~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:7: Warning: The resource R.color.teal_700 appears to be unused [UnusedResources]
+    <color name="teal_700">#FF018786</color>
+           ~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:8: Warning: The resource R.color.black appears to be unused [UnusedResources]
+    <color name="black">#FF000000</color>
+           ~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/colors.xml:9: Warning: The resource R.color.white appears to be unused [UnusedResources]
+    <color name="white">#FFFFFFFF</color>
+           ~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:8: Warning: The resource R.string.theme_section_colors appears to be unused [UnusedResources]
+    <string name="theme_section_colors">Palet Warna</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:17: Warning: The resource R.string.theme_fab_add_job appears to be unused [UnusedResources]
+    <string name="theme_fab_add_job">Tambah Job</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:39: Warning: The resource R.string.action_retry appears to be unused [UnusedResources]
+    <string name="action_retry">Coba lagi</string>
+            ~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:42: Warning: The resource R.string.action_edit appears to be unused [UnusedResources]
+    <string name="action_edit">Ubah</string>
+            ~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:46: Warning: The resource R.string.action_edit_payment appears to be unused [UnusedResources]
+    <string name="action_edit_payment">Ubah Pembayaran</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:47: Warning: The resource R.string.action_close appears to be unused [UnusedResources]
+    <string name="action_close">Tutup</string>
+            ~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:48: Warning: The resource R.string.action_continue appears to be unused [UnusedResources]
+    <string name="action_continue">Lanjut</string>
+            ~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:49: Warning: The resource R.string.action_later appears to be unused [UnusedResources]
+    <string name="action_later">Nanti</string>
+            ~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:52: Warning: The resource R.string.action_enable appears to be unused [UnusedResources]
+    <string name="action_enable">Aktifkan</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:58: Warning: The resource R.string.cd_info appears to be unused [UnusedResources]
+    <string name="cd_info">Informasi</string>
+            ~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:60: Warning: The resource R.string.cd_add appears to be unused [UnusedResources]
+    <string name="cd_add">Tambah</string>
+            ~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:61: Warning: The resource R.string.cd_check appears to be unused [UnusedResources]
+    <string name="cd_check">Selesai</string>
+            ~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:62: Warning: The resource R.string.cd_delete appears to be unused [UnusedResources]
+    <string name="cd_delete">Hapus</string>
+            ~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:63: Warning: The resource R.string.cd_edit appears to be unused [UnusedResources]
+    <string name="cd_edit">Ubah</string>
+            ~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:68: Warning: The resource R.string.currency_prefix appears to be unused [UnusedResources]
+    <string name="currency_prefix">Rp</string>
+            ~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:82: Warning: The resource R.string.empty_unpaid_title appears to be unused [UnusedResources]
+    <string name="empty_unpaid_title">Semua job di tab ini sudah lunas</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:83: Warning: The resource R.string.empty_recap_title appears to be unused [UnusedResources]
+    <string name="empty_recap_title">Belum ada job pada periode ini</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:84: Warning: The resource R.string.empty_receivables_title appears to be unused [UnusedResources]
+    <string name="empty_receivables_title">Tidak ada fee yang perlu ditagih</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:115: Warning: The resource R.string.tab_upcoming appears to be unused [UnusedResources]
+    <string name="tab_upcoming">Mendatang</string>
+            ~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:116: Warning: The resource R.string.tab_history appears to be unused [UnusedResources]
+    <string name="tab_history">Riwayat</string>
+            ~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:117: Warning: The resource R.string.filter_unpaid appears to be unused [UnusedResources]
+    <string name="filter_unpaid">Belum lunas</string>
+            ~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:149: Warning: The resource R.string.placeholder_home_upcoming appears to be unused [UnusedResources]
+    <string name="placeholder_home_upcoming">Beranda — Tab Mendatang dan Riwayat akan diisi pada FE-07</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:152: Warning: The resource R.string.placeholder_job_form appears to be unused [UnusedResources]
+    <string name="placeholder_job_form">Form Job — Konten akan diisi pada FE-08</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:168: Warning: The resource R.string.payment_partial appears to be unused [UnusedResources]
+    <string name="payment_partial">Kurang %s</string>
+            ~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:171: Warning: The resource R.string.job_card_separator appears to be unused [UnusedResources]
+    <string name="job_card_separator">·</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:172: Warning: The resource R.string.time_range_next_day appears to be unused [UnusedResources]
+    <string name="time_range_next_day">%1$s - %2$s (%3$s)</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:173: Warning: The resource R.string.time_range_same_day appears to be unused [UnusedResources]
+    <string name="time_range_same_day">%1$s - %2$s</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UnusedResources":
+   Unused resources make applications larger and slow down builds.
+
+
+   The unused resource check can ignore tests. If you want to include
+   resources that are only referenced from tests, consider packaging them in a
+   test source set instead.
+
+   You can include test sources in the unused resource check by setting the
+   system property lint.unused-resources.include-tests=true, and to exclude
+   them (usually for performance reasons), use
+   lint.unused-resources.exclude-tests=true.
+
+   Available options:
+
+   **skip-libraries** (default is true):
+   Whether the unused resource check should skip reporting unused resources in libraries.
+
+   Many libraries will declare resources that are part of the library surface; other modules depending on the library will also reference the resources. To avoid reporting all these resources as unused (in the context of a library), the unused resource check normally skips reporting unused resources in libraries. Instead, run the unused resource check on the consuming app module (along with `checkDependencies=true`).
+
+   However, there are cases where you want to check that all the resources declared in a library are used; in that case, you can disable the skip option.
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UnusedResources">
+           <option name="skip-libraries" value="true" />
+       </issue>
+   </lint>
+   ```
+
+/home/gopal-ichiro/Documents/pemrograma_bergerak/teori/kontenin/app/src/main/res/values/strings.xml:21: Warning: Replace "-" with an "en dash" character (–, &#8211;) ? [TypographyDashes]
+    <string name="theme_sample_date_time">Sab, 18 Okt 2026 · 10.00 - 14.00</string>
+                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "TypographyDashes":
+   The "n dash" (u2013, &#8211;) and the "m dash" (u2014, &#8212;) characters
+   are used for ranges (n dash) and breaks (m dash). Using these instead of
+   plain hyphens can make text easier to read and your application will look
+   more polished.
+
+   https://en.wikipedia.org/wiki/Dash
+
+0 errors, 43 warnings

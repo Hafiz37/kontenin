@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.presentation.HomeRulesTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:33.299Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.019">
+  <properties/>
+  <testcase name="sortHistory urut terbaru dulu dengan ID sebagai tiebreaker" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.005"/>
+  <testcase name="categorizeAndSortJobs memisahkan dan mengurutkan dengan benar" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.003"/>
+  <testcase name="job dengan waktu selesai tepat now adalah Riwayat" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.001"/>
+  <testcase name="job dengan waktu selesai belum lewat adalah Mendatang" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.0"/>
+  <testcase name="job masa lalu adalah Riwayat" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.001"/>
+  <testcase name="isUnpaid mendeteksi status pembayaran dengan benar" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.0"/>
+  <testcase name="filterUnpaid hanya ambil dibayar kurang dari fee" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.0"/>
+  <testcase name="sortUpcoming urut terdekat dulu dengan ID sebagai tiebreaker" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.001"/>
+  <testcase name="job masa depan 1 jam lagi adalah Mendatang" classname="com.example.kontenin.presentation.HomeRulesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

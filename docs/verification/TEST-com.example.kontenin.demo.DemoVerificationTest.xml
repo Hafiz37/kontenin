@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kontenin.demo.DemoVerificationTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-01T10:42:32.582Z" hostname="gopal-ichiro-PORTEGE-R30-C" time="0.707">
+  <properties/>
+  <testcase name="pendingSaveDoesNotPublishPartialDataBeforeRelease" classname="com.example.kontenin.demo.DemoVerificationTest" time="0.63"/>
+  <testcase name="overlapAcrossMidnightIsReportedInBothDirections" classname="com.example.kontenin.demo.DemoVerificationTest" time="0.008"/>
+  <testcase name="failedSaveLeavesEntireCollectionUnchanged" classname="com.example.kontenin.demo.DemoVerificationTest" time="0.007"/>
+  <testcase name="adjacentJobsAndEditingSelfAreNotConflicts" classname="com.example.kontenin.demo.DemoVerificationTest" time="0.004"/>
+  <testcase name="fixturesUseInjectedClockAndResetExactly" classname="com.example.kontenin.demo.DemoVerificationTest" time="0.055"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
